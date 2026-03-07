@@ -50,8 +50,8 @@ export default {
 </div>
                             </div>
                             <p class="label-muted !text-slate-400 mt-2">
-                                {{ formatDate(activity.start_date) }} • {{ activity.timezone?.split('/')[1] || 'Jakarta' }}
-                            </p>
+    {{ formatDate(activity.start_date) }} • {{ activity.display_location || 'Memuat Lokasi...' }}
+</p>
                         </div>
                     </div>
 
@@ -149,18 +149,26 @@ export default {
     this.activity = await ActivityService.getActivityById(this.id);
 
     if (this.activity) {
-        // 1. Weather Engine Injection
         if (this.activity.start_latlng) {
-            const weather = await WeatherService.fetchWeather(
-                this.activity.start_latlng[0],
-                this.activity.start_latlng[1],
-                this.activity.start_date
-            );
-            
+            // 1. Ambil Nama Lokasi & Data Cuaca secara paralel agar lebih cepat
+            const [location, weather] = await Promise.all([
+                ActivityService.getLocationName(
+                    this.activity.start_latlng[0],
+                    this.activity.start_latlng[1]
+                ),
+                WeatherService.fetchWeather(
+                    this.activity.start_latlng[0],
+                    this.activity.start_latlng[1],
+                    this.activity.start_date
+                )
+            ]);
+
+            // Simpan lokasi ke objek activity
+            this.activity.display_location = location;
+
+            // Simpan cuaca & render icon Lucide
             if (weather) {
                 this.activity.weather = weather;
-                
-                // 2. Render Icon Lucide setelah cuaca masuk ke DOM
                 this.$nextTick(() => {
                     if (window.lucide) {
                         window.lucide.createIcons();
@@ -169,7 +177,7 @@ export default {
             }
         }
 
-        // 3. Map Initialization
+        // 2. Map Initialization
         this.$nextTick(() => {
             setTimeout(() => {
                 if (typeof polyline !== 'undefined') {
@@ -182,6 +190,7 @@ export default {
         });
     }
 },
+    
     
     methods: {
         formatDate: ActivityService.formatDate,
