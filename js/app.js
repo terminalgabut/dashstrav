@@ -1,48 +1,58 @@
-// Kita gunakan defineAsyncComponent dari Vue untuk lazy loading
-const { defineAsyncComponent } = Vue;
+/**
+ * js/app.js
+ * Refactored: Native Vue Router Lazy Loading
+ */
 
-// 1. Lazy Load Components
-// Browser hanya akan mengambil file .js ini saat route diakses
-const Dashboard = defineAsyncComponent(() => import('./views/Dashboard.js'));
-const Activities = defineAsyncComponent(() => import('./views/Activities.js'));
-const ActivityDetail = defineAsyncComponent(() => import('./views/ActivityDetail.js'));
-
-// 2. Definisi Routes
+// 1. Definisi Routes dengan Native Lazy Loading
+// Kita tidak perlu defineAsyncComponent untuk routes.
+// Vue Router akan menangani Promise dari import() secara otomatis.
 const routes = [
     { 
         path: '/', 
-        component: Dashboard,
-        name: 'dashboard'
+        name: 'dashboard',
+        component: () => import('./views/Dashboard.js')
     },
     { 
         path: '/activities', 
-        component: Activities,
-        name: 'activities'
+        name: 'activities',
+        component: () => import('./views/Activities.js')
     },
     { 
         path: '/activity/:id', 
-        component: ActivityDetail, 
-        props: true,
-        name: 'detail'
+        name: 'detail',
+        component: () => import('./views/ActivityDetail.js'),
+        props: true // Mengirim :id langsung sebagai props ke komponen
     }
 ];
 
-// 3. Inisialisasi Router
+// 2. Inisialisasi Router
 const router = VueRouter.createRouter({
-    // Mode Hash cocok untuk GitHub Pages agar tidak 404 saat refresh
+    // Hash mode sangat disarankan untuk GitHub Pages
     history: VueRouter.createWebHashHistory(),
     routes,
-    // Scroll ke atas otomatis saat pindah halaman
-    scrollBehavior() {
-        return { top: 0 };
+    // Estetika: Selalu kembali ke atas saat pindah halaman
+    scrollBehavior(to, from, savedPosition) {
+        if (savedPosition) {
+            return savedPosition;
+        } else {
+            return { top: 0 };
+        }
     }
 });
 
-// 4. Inisialisasi App
+// 3. Global Loading State (Opsional)
+// Kita bisa memantau kapan rute sedang loading untuk menampilkan spinner
+router.beforeEach((to, from, next) => {
+    // Kamu bisa mengaktifkan loading state di sini jika perlu
+    next();
+});
+
+// 4. Inisialisasi Root App
 const app = Vue.createApp({
     data() {
         return {
-            loading: false
+            // State global jika dibutuhkan
+            isAppReady: true
         }
     }
 });
