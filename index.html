@@ -3,185 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Strava Dashboard</title>
+    <title>Dashstrav Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue-router@4/dist/vue-router.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .strava-orange { color: #FC4C02; }
-        .bg-strava { background-color: #FC4C02; }
-        /* Perbaikan agar grafik bagus di HP */
-        .chart-container { position: relative; height: 300px; width: 100%; }
+        .router-link-active { color: #FC4C02; border-bottom: 2px solid #FC4C02; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans">
-
-    <div id="app" class="max-w-5xl mx-auto px-4 py-8">
-        
-        <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
-            <div>
-                <h1 class="text-4xl font-black italic strava-orange tracking-tighter uppercase">Dashstrav Bot</h1>
-                <p class="text-gray-500 font-medium">Auto-sync Activity dari Strava API</p>
-            </div>
-            <div class="bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200 flex items-center gap-2 text-sm font-bold text-gray-600">
-                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                UPDATE: {{ lastUpdated }}
-            </div>
-        </header>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Jarak Total (10 Sesi)</p>
-                <p class="text-3xl font-black mt-1">{{ totalDistance }} <span class="text-lg font-normal text-gray-400">KM</span></p>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Rata-rata Durasi</p>
-                <p class="text-3xl font-black mt-1">{{ avgDuration }} <span class="text-lg font-normal text-gray-400">MIN</span></p>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Elevasi</p>
-                <p class="text-3xl font-black mt-1 text-green-600">▲ {{ totalElevation }} <span class="text-lg font-normal text-gray-400">M</span></p>
-            </div>
-        </div>
-
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-10">
-            <h2 class="font-bold text-lg mb-4 italic uppercase">Grafik Jarak (KM)</h2>
-            <div class="chart-container">
-                <canvas id="performanceChart"></canvas>
-            </div>
-        </div>
-
-        <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
-            Aktivitas Terkini
-            <span class="text-xs bg-gray-200 px-2 py-1 rounded text-gray-600 uppercase">Aktivitas Terbaru</span>
-        </h2>
-        
-        <div v-if="loading" class="text-center py-10 font-bold text-gray-400">Memuat data dari satelit Strava...</div>
-
-        <div v-else class="grid grid-cols-1 gap-4">
-            <div v-for="act in activities" :key="act.id" class="group bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:border-orange-300 transition-all flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <div class="bg-orange-50 p-3 rounded-xl group-hover:bg-strava transition-colors text-orange-600 group-hover:text-white">
-                        <svg v-if="act.type === 'Run'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4v16m8-8H3"/></svg>
-                        <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v20m10-10H2"/></svg>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-lg leading-tight">{{ act.name }}</h3>
-                        <p class="text-xs font-medium text-gray-400 uppercase">{{ formatDate(act.start_date) }} • {{ act.type }}</p>
-                    </div>
-                </div>
-                <div class="text-right flex items-center gap-6">
-                    <div class="hidden md:block">
-                        <p class="text-xs font-bold text-gray-400 uppercase">PERFORMA</p>
-                        <p class="font-bold text-sm">{{ calculatePerformance(act) }}</p>
-                    </div>
-                    <div>
-                        <p class="text-2xl font-black italic strava-orange leading-none">{{ (act.distance / 1000).toFixed(2) }}</p>
-                        <p class="text-[10px] font-bold text-gray-400 text-center uppercase tracking-tighter">KM</p>
-                    </div>
+<body class="bg-gray-50">
+    <div id="app">
+        <nav class="bg-white shadow-sm sticky top-0 z-50">
+            <div class="max-w-5xl mx-auto px-4 flex justify-between items-center h-16">
+                <h1 class="font-black italic text-2xl text-[#FC4C02]">DASHSTRAV</h1>
+                <div class="flex gap-6 text-sm font-bold text-gray-500">
+                    <router-link to="/" class="pb-1">DASHBOARD</router-link>
+                    <router-link to="/activities" class="pb-1">AKTIVITAS</router-link>
                 </div>
             </div>
-        </div>
+        </nav>
+
+        <main class="max-w-5xl mx-auto px-4 py-8">
+            <router-view></router-view>
+        </main>
     </div>
 
-    <script>
-        const { createApp } = Vue
-
-        createApp({
-            data() {
-                return {
-                    activities: [],
-                    totalDistance: 0,
-                    avgDuration: 0,
-                    totalElevation: 0,
-                    lastUpdated: '',
-                    loading: true
-                }
-            },
-            async mounted() {
-                try {
-                    const response = await fetch('data/activities.json?t=' + new Date().getTime());
-                    const data = await response.json();
-                    
-                    // Cek jika data berupa error Strava
-                    if (data.message && data.message.includes("Error")) {
-                        throw new Error(data.message);
-                    }
-
-                    this.activities = data;
-                    this.calculateStats();
-                    this.initChart();
-                    this.lastUpdated = new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) + " WIB";
-                } catch (e) {
-                    console.error("Gagal memuat data:", e);
-                    this.lastUpdated = "Error API";
-                } finally {
-                    this.loading = false;
-                }
-            },
-            methods: {
-                calculateStats() {
-                    if (this.activities.length === 0) return;
-                    const totalDistMeters = this.activities.reduce((sum, a) => sum + a.distance, 0);
-                    this.totalDistance = (totalDistMeters / 1000).toFixed(1);
-                    
-                    const totalTime = this.activities.reduce((sum, a) => sum + a.moving_time, 0);
-                    this.avgDuration = (totalTime / this.activities.length / 60).toFixed(0);
-
-                    this.totalElevation = this.activities.reduce((sum, a) => sum + a.total_elevation_gain, 0).toFixed(0);
-                },
-                formatDate(dateStr) {
-                    return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-                },
-                calculatePerformance(act) {
-                    const km = act.distance / 1000;
-                    if (act.type === 'Ride') {
-                        // Untuk Sepeda: km/h
-                        const hours = act.moving_time / 3600;
-                        return (km / hours).toFixed(1) + " km/h";
-                    } else {
-                        // Untuk Lari: pace min/km
-                        const min = act.moving_time / 60;
-                        const paceDecimal = min / km;
-                        const paceMins = Math.floor(paceDecimal);
-                        const paceSecs = Math.round((paceDecimal - paceMins) * 60);
-                        return `${paceMins}:${paceSecs < 10 ? '0' : ''}${paceSecs} /km`;
-                    }
-                },
-                initChart() {
-                    const ctx = document.getElementById('performanceChart').getContext('2d');
-                    const reversedData = [...this.activities].reverse();
-                    const labels = reversedData.map(a => this.formatDate(a.start_date));
-                    const dataDist = reversedData.map(a => (a.distance / 1000).toFixed(2));
-
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                label: 'Jarak (km)',
-                                data: dataDist,
-                                borderColor: '#FC4C02',
-                                backgroundColor: 'rgba(252, 76, 2, 0.1)',
-                                fill: true,
-                                tension: 0.4,
-                                borderWidth: 3,
-                                pointRadius: 4
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: {
-                                y: { beginAtZero: true, grid: { color: '#f3f4f6' } },
-                                x: { grid: { display: false } }
-                            }
-                        }
-                    });
-                }
-            }
-        }).mount('#app')
-    </script>
+    <script src="./js/app.js" type="module"></script>
 </body>
 </html>
