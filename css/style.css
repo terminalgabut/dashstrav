@@ -10,17 +10,17 @@
     --bg-main: #F8FAFC;
     --card-bg: #FFFFFF;
     --text-primary: #0F172A;
-    --text-secondary: #64748B;
+    --text-secondary: #475569;
     --text-muted: #94A3B8;
     --border-color: #F1F5F9;
     
     /* Typography */
-    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     
     /* Spacing & Radius */
     --radius-xl: 1.5rem;   /* 24px */
     --radius-lg: 1rem;     /* 16px */
-    --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* --- RESET & BASE --- */
@@ -36,12 +36,14 @@ body {
     font-family: var(--font-main);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
 }
 
 /* --- MODERN TYPOGRAPHY --- */
 h1, h2, h3, .font-heading {
     font-weight: 900;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.04em;
     font-style: italic;
     text-transform: uppercase;
 }
@@ -51,14 +53,31 @@ h1, h2, h3, .font-heading {
     font-style: italic;
     letter-spacing: -0.05em;
     color: var(--text-primary);
+    line-height: 1;
 }
 
 .label-muted {
-    font-size: 0.625rem; /* 10px */
-    font-weight: 700;
+    font-size: 0.65rem;
+    font-weight: 800;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.05em;
+}
+
+/* --- NAVIGATION & LINKS --- */
+.nav-link {
+    border-bottom: 2px solid transparent;
+    color: var(--text-muted);
+    transition: var(--transition-base);
+}
+
+.nav-link:hover {
+    color: var(--text-secondary);
+}
+
+.router-link-active.nav-link {
+    color: var(--strava-orange);
+    border-bottom-color: var(--strava-orange);
 }
 
 /* --- REUSABLE COMPONENTS --- */
@@ -68,17 +87,19 @@ h1, h2, h3, .font-heading {
     border-radius: var(--radius-xl);
     padding: 1.5rem;
     transition: var(--transition-base);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
 .card-modern:hover {
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.06);
     transform: translateY(-2px);
+    border-color: #E2E8F0;
 }
 
 .btn-strava {
     background-color: var(--strava-orange);
-    color: white;
-    padding: 1rem 2rem;
+    color: white !important;
+    padding: 1.25rem 2rem;
     border-radius: var(--radius-lg);
     font-weight: 900;
     font-style: italic;
@@ -86,11 +107,39 @@ h1, h2, h3, .font-heading {
     text-decoration: none;
     transition: var(--transition-base);
     display: block;
+    border: none;
+    cursor: pointer;
 }
 
 .btn-strava:hover {
     background-color: var(--strava-orange-dark);
-    box-shadow: 0 4px 12px rgba(252, 76, 2, 0.3);
+    box-shadow: 0 8px 16px -4px rgba(252, 76, 2, 0.3);
+    transform: scale(1.01);
+}
+
+/* --- CUSTOM SCROLLBAR --- */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* --- MAP FIXES --- */
+#map {
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Leaflet control custom styling */
+.leaflet-container {
+    font-family: var(--font-main) !important;
 }
 
 /* --- TRANSITIONS --- */
