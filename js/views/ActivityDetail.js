@@ -1,8 +1,9 @@
 /**
  * js/views/ActivityDetail.js
- * Clean View: UI Rendering with Logic delegated to ActivityService
+ * Pulih & Terintegrasi dengan WeatherService
  */
 import { ActivityService } from '../services/activityService.js';
+import { WeatherService } from '../services/weatherService.js';
 
 export default {
     props: ['id'],
@@ -18,24 +19,33 @@ export default {
                 <div id="map" class="h-80 w-full bg-slate-50 z-0 relative">
                     <div v-if="!mapReady" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-50/80 backdrop-blur-sm z-10">
                         <div class="w-6 h-6 border-2 border-strava border-t-transparent rounded-full animate-spin mb-3"></div>
-                        <p class="label-muted animate-pulse">Memetakan Rute...</p>
+                        <p class="label-muted animate-pulse">Memetakan rute...</p>
                     </div>
                 </div>
 
                 <div class="p-8 -mt-12 relative bg-white rounded-t-[2.5rem] z-20 shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.05)]">
                     
                     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-                        <div>
+                        <div class="flex-1">
                             <span class="inline-block bg-orange-50 text-strava text-[9px] px-2.5 py-1 rounded-lg font-black uppercase italic tracking-widest mb-3">
                                 Strava {{ activity.type }}
                             </span>
-                            <div class="flex items-center gap-4">
+                            <div class="flex flex-wrap items-center gap-3 md:gap-4">
                                 <h1 class="text-4xl font-black italic tracking-tighter text-slate-900 leading-tight">
                                     {{ activity.name }}
                                 </h1>
-                                <div v-if="activity.average_temp" class="flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-2xl border border-blue-100">
-                                    <span class="text-lg">☀️</span>
-                                    <span class="text-sm font-black text-blue-600">{{ activity.average_temp }}°C</span>
+                                
+                                <div v-if="activity.weather" class="flex items-center gap-2 animate-in slide-in-from-left-4 duration-700">
+                                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-2xl border border-slate-100 shadow-sm">
+                                        <span class="text-xl">{{ activity.weather.icon }}</span>
+                                        <span class="text-sm font-black text-slate-700">{{ activity.weather.temp }}°C</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-2xl shadow-sm">
+                                        <span class="text-xs">💨</span>
+                                        <span class="text-[10px] font-black text-white uppercase tracking-tighter">
+                                            {{ activity.weather.windDir }} {{ activity.weather.windSpeed }} m/s
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <p class="label-muted !text-slate-400 mt-2">
@@ -137,12 +147,21 @@ export default {
         this.activity = await ActivityService.getActivityById(this.id);
 
         if (this.activity) {
+            // Weather Engine Injection
+            if (this.activity.start_latlng) {
+                const weather = await WeatherService.fetchWeather(
+                    this.activity.start_latlng[0],
+                    this.activity.start_latlng[1],
+                    this.activity.start_date
+                );
+                if (weather) this.activity.weather = weather;
+            }
+
             this.$nextTick(() => {
                 setTimeout(() => {
                     if (typeof polyline !== 'undefined') {
                         this.initMap();
                     } else {
-                        console.warn("Polyline belum siap, mencoba lagi...");
                         setTimeout(() => this.initMap(), 500);
                     }
                 }, 500);
@@ -160,29 +179,17 @@ export default {
 
             try {
                 const coords = ActivityService.decodeRoute(this.activity.map.summary_polyline);
-                
                 if (this.leafletMap) this.leafletMap.remove();
 
-                this.leafletMap = L.map('map', { 
-                    zoomControl: false, 
-                    attributionControl: false 
-                }).setView(coords[0], 13);
-
+                this.leafletMap = L.map('map', { zoomControl: false, attributionControl: false }).setView(coords[0], 13);
                 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(this.leafletMap);
-
-                const route = L.polyline(coords, { 
-                    color: '#FC4C02', 
-                    weight: 5,
-                    lineJoin: 'round'
-                }).addTo(this.leafletMap);
-
+                const route = L.polyline(coords, { color: '#FC4C02', weight: 5, lineJoin: 'round' }).addTo(this.leafletMap);
                 this.leafletMap.fitBounds(route.getBounds(), { padding: [40, 40] });
 
                 setTimeout(() => {
                     this.leafletMap.invalidateSize();
                     this.mapReady = true;
                 }, 300);
-
             } catch (err) {
                 console.error("Leaflet Error:", err.message);
             }
