@@ -1,3 +1,5 @@
+//js/views/Dashboard.js
+
 export default {
     name: 'Dashboard',
     template: `
