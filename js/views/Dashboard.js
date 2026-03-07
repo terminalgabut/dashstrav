@@ -1,7 +1,10 @@
 /**
  * js/views/Dashboard.js
- * Refactored using Custom Design System & CSS Variables
+ * View untuk menampilkan ringkasan performa
+ * Delegated logic to ActivityService
  */
+import { ActivityService } from '../services/activityService.js';
+
 export default {
     name: 'Dashboard',
     template: `
@@ -25,7 +28,7 @@ export default {
                 <div class="card-modern">
                     <p class="label-muted">Total Sesi</p>
                     <p class="stats-value text-3xl mt-1">
-                        {{ activities.length }} <span class="text-sm font-normal text-slate-400 not-italic uppercase">Sesi</span>
+                        {{ stats.count }} <span class="text-sm font-normal text-slate-400 not-italic uppercase">Sesi</span>
                     </p>
                 </div>
 
@@ -33,9 +36,9 @@ export default {
             
             <div class="card-modern">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="label-muted !text-slate-500">Grafik Volume Jarak</h2>
-                    <span class="text-[9px] bg-orange-50 text-strava px-2 py-1 rounded-lg font-black italic tracking-widest">
-                        LAST 10 ACTIVITIES
+                    <h2 class="label-muted !text-slate-500 uppercase tracking-widest">Grafik Volume Jarak</h2>
+                    <span class="text-[9px] bg-orange-50 text-strava px-2 py-1 rounded-lg font-black italic tracking-widest uppercase">
+                        Last 10 Activities
                     </span>
                 </div>
                 
@@ -47,100 +50,39 @@ export default {
     `,
     data() {
         return { 
-            activities: [], 
-            stats: { totalDist: 0, totalElev: 0 }, 
+            stats: { totalDist: 0, totalElev: 0, count: 0 }, 
             chartInstance: null 
         }
     },
     async mounted() {
-        try {
-            const res = await fetch('data/activities.json?t=' + new Date().getTime());
-            this.activities = await res.json();
+        // Fetch data via Service
+        const activities = await ActivityService.fetchActivities();
+        
+        if (activities && activities.length > 0) {
+            // Kalkulasi via Service
+            this.stats = ActivityService.getDashboardStats(activities);
             
-            if (this.activities && this.activities.length > 0) {
-                this.calculate();
-                
-                // Memastikan DOM siap sebelum render Chart
-                this.$nextTick(() => {
-                    setTimeout(() => this.renderChart(), 300);
-                });
-            }
-        } catch (error) {
-            console.error("Dashboard Error:", error);
-        }
-    },
-    methods: {
-        calculate() {
-            const dist = this.activities.reduce((s, a) => s + a.distance, 0);
-            const elev = this.activities.reduce((s, a) => s + a.total_elevation_gain, 0);
-            
-            this.stats.totalDist = (dist / 1000).toFixed(1);
-            this.stats.totalElev = elev.toFixed(0);
-        },
-        renderChart() {
-            const canvas = document.getElementById('mainChart');
-            if (!canvas) return;
-
-            const ctx = canvas.getContext('2d');
-            const data = [...this.activities].reverse();
-            
-            if (this.chartInstance) this.chartInstance.destroy();
-
-            // Setup gradient untuk bar agar lebih mewah
-            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, '#FC4C02');
-            gradient.addColorStop(1, '#ff8a5c');
-
-            this.chartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.map(a => new Date(a.start_date).toLocaleDateString('id-ID', {day:'numeric', month:'short'})),
-                    datasets: [{ 
-                        label: 'Jarak (KM)', 
-                        data: data.map(a => (a.distance/1000).toFixed(2)), 
-                        backgroundColor: gradient,
-                        hoverBackgroundColor: '#FC4C02',
-                        borderRadius: 8,
-                        barThickness: 'flex',
-                        maxBarThickness: 32
-                    }]
-                },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: '#0F172A',
-                            padding: 12,
-                            cornerRadius: 12,
-                            titleFont: { family: 'Inter', size: 10, weight: 'bold' },
-                            bodyFont: { family: 'Inter', size: 13, weight: '900' },
-                            displayColors: false
-                        }
-                    },
-                    scales: { 
-                        y: { 
-                            beginAtZero: true,
-                            grid: { color: '#F1F5F9', drawBorder: false },
-                            ticks: { 
-                                font: { family: 'Inter', size: 10, weight: '600' }, 
-                                color: '#94A3B8' 
-                            }
-                        },
-                        x: { 
-                            grid: { display: false },
-                            ticks: { 
-                                font: { family: 'Inter', size: 10, weight: '600' }, 
-                                color: '#94A3B8' 
-                            }
-                        }
-                    }
-                }
+            // Render Chart
+            this.$nextTick(() => {
+                setTimeout(() => this.initDashboardChart(activities), 300);
             });
         }
     },
+    methods: {
+        initDashboardChart(activities) {
+            const canvas = document.getElementById('mainChart');
+            if (!canvas || typeof Chart === 'undefined') return;
+
+            const ctx = canvas.getContext('2d');
+            if (this.chartInstance) this.chartInstance.destroy();
+
+            // Dapatkan konfigurasi dari Service
+            const config = ActivityService.getChartConfig(ctx, activities);
+            this.chartInstance = new Chart(ctx, config);
+        }
+    },
     beforeUnmount() {
+        // Bersihkan memori chart
         if (this.chartInstance) this.chartInstance.destroy();
     }
 }
