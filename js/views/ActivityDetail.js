@@ -125,14 +125,22 @@ export default {
         };
     },
     async mounted() {
-        this.activity = await ActivityService.getActivityById(this.id);
+    this.activity = await ActivityService.getActivityById(this.id);
 
-        if (this.activity) {
-            this.$nextTick(() => {
-                setTimeout(() => this.initMap(), 400);
-            });
-        }
-    },
+    if (this.activity) {
+        // Berikan waktu sedikit lebih lama untuk memastikan library global terdeteksi
+        this.$nextTick(() => {
+            setTimeout(() => {
+                if (typeof polyline !== 'undefined') {
+                    this.initMap();
+                } else {
+                    console.warn("Polyline belum siap, mencoba lagi dalam 500ms...");
+                    setTimeout(() => this.initMap(), 500);
+                }
+            }, 500);
+        });
+    }
+},
     methods: {
         // Mapping Helper Methods from Service
         formatDate: ActivityService.formatDate,
