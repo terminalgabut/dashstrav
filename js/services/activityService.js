@@ -47,10 +47,14 @@ export const ActivityService = {
 
     // 4. Map & Route Logic
     decodeRoute(polylineStr) {
-        if (typeof polyline === 'undefined') {
-            throw new Error("Library polyline.js tidak ditemukan");
-        }
-        return polyline.decode(polylineStr);
+    // Memastikan kita mengambil instance dari global scope
+    const decoder = window.polyline; 
+    
+    if (!decoder) {
+        throw new Error("Library polyline.js tidak ditemukan di global window");
+    }
+    
+    return decoder.decode(polylineStr);
     },
 
     // 5. Chart.js Configuration Generator
