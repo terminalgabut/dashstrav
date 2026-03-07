@@ -24,9 +24,25 @@
             </div>
         </nav>
 
-        <main class="max-w-5xl mx-auto px-4 py-8">
-            <router-view></router-view>
-        </main>
+        <<main class="max-w-5xl mx-auto px-4 py-8">
+    <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+            <keep-alive>
+                <component :is="Component" />
+            </keep-alive>
+        </transition>
+    </router-view>
+</main>
+
+<style>
+    /* Animasi transisi antar halaman agar lebih smooth */
+    .fade-enter-active, .fade-leave-active {
+        transition: opacity 0.2s ease;
+    }
+    .fade-enter-from, .fade-leave-to {
+        opacity: 0;
+    }
+</style>
     </div>
 
     <script src="./js/app.js" type="module"></script>
