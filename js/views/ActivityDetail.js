@@ -1,87 +1,118 @@
 /**
  * js/views/ActivityDetail.js
- * Refactored: Integrasi Leaflet Map untuk render Polyline Strava
+ * Refactored: Leaflet integration with Custom Design System
  */
 export default {
     props: ['id'],
+    name: 'ActivityDetail',
     template: `
-        <div v-if="activity" class="animate-in fade-in duration-500">
-            <button @click="$router.back()" class="mb-4 text-xs font-bold text-gray-400 hover:text-[#FC4C02] flex items-center gap-1 transition-colors">
-                ← KEMBALI
+        <div v-if="activity" class="animate-in fade-in duration-500 pb-12">
+            <button @click="$router.back()" class="mb-5 text-[10px] font-black text-slate-400 hover:text-strava flex items-center gap-2 transition-all uppercase tracking-widest">
+                <span class="text-lg leading-none">←</span> KEMBALI
             </button>
 
-            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
                 
-                <div id="map" class="h-72 w-full bg-gray-100 z-0 relative">
-                    <div v-if="!mapReady" class="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
-                        <span class="text-[10px] font-bold text-gray-400 animate-pulse">MEMUAT PETA RUTE...</span>
+                <div id="map" class="h-80 w-full bg-slate-50 z-0 relative">
+                    <div v-if="!mapReady" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-50/80 backdrop-blur-sm z-10">
+                        <div class="w-6 h-6 border-2 border-strava border-t-transparent rounded-full animate-spin mb-3"></div>
+                        <p class="label-muted animate-pulse">Memetakan Rute...</p>
                     </div>
                 </div>
 
-                <div class="p-8 -mt-10 relative bg-white rounded-t-3xl z-20">
-                    <div class="flex justify-between items-start mb-6">
+                <div class="p-8 -mt-12 relative bg-white rounded-t-[2.5rem] z-20 shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.05)]">
+                    
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
                         <div>
-                            <span class="bg-[#FC4C02] text-white text-[10px] px-2 py-1 rounded-md font-black uppercase italic tracking-widest">
-                                {{ activity.type }}
+                            <span class="inline-block bg-orange-50 text-strava text-[9px] px-2.5 py-1 rounded-lg font-black uppercase italic tracking-widest mb-3">
+                                Strava {{ activity.type }}
                             </span>
-                            <h1 class="text-3xl font-black italic mt-2 tracking-tighter">{{ activity.name }}</h1>
-                            <p class="text-gray-400 text-sm font-medium uppercase tracking-tight">{{ formatDate(activity.start_date) }}</p>
+                            <h1 class="text-4xl font-black italic tracking-tighter text-slate-900 leading-tight">
+                                {{ activity.name }}
+                            </h1>
+                            <p class="label-muted !text-slate-400 mt-2">
+                                {{ formatDate(activity.start_date) }} • {{ activity.timezone?.split('/')[1] || 'Activity' }}
+                            </p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100/50 text-center md:text-left">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Jarak</p>
-                            <p class="text-xl font-black italic text-gray-800">{{ (activity.distance / 1000).toFixed(2) }} <span class="text-[10px] font-normal not-italic">KM</span></p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                        <div class="bg-slate-50/50 p-5 rounded-3xl border border-slate-100">
+                            <p class="label-muted">Jarak</p>
+                            <p class="stats-value text-2xl mt-1">
+                                {{ (activity.distance / 1000).toFixed(2) }} <span class="text-xs font-normal not-italic text-slate-400 uppercase">km</span>
+                            </p>
                         </div>
-                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100/50 text-center md:text-left">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Waktu</p>
-                            <p class="text-xl font-black italic text-gray-800">{{ formatTime(activity.moving_time) }}</p>
+                        <div class="bg-slate-50/50 p-5 rounded-3xl border border-slate-100">
+                            <p class="label-muted">Waktu</p>
+                            <p class="stats-value text-2xl mt-1">{{ formatTime(activity.moving_time) }}</p>
                         </div>
-                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100/50 text-center md:text-left">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Elevasi</p>
-                            <p class="text-xl font-black italic text-green-600">{{ activity.total_elevation_gain }} <span class="text-[10px] font-normal not-italic text-gray-400">M</span></p>
+                        <div class="bg-slate-50/50 p-5 rounded-3xl border border-slate-100">
+                            <p class="label-muted">Elevasi</p>
+                            <p class="stats-value text-2xl mt-1 text-emerald-600">
+                                {{ activity.total_elevation_gain }} <span class="text-xs font-normal not-italic text-slate-400 uppercase">m</span>
+                            </p>
                         </div>
-                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100/50 text-center md:text-left">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Avg Speed</p>
-                            <p class="text-xl font-black italic text-gray-800">{{ (activity.average_speed * 3.6).toFixed(1) }} <span class="text-[10px] font-normal not-italic">km/h</span></p>
+                        <div class="bg-slate-50/50 p-5 rounded-3xl border border-slate-100">
+                            <p class="label-muted">Avg Speed</p>
+                            <p class="stats-value text-2xl mt-1">
+                                {{ (activity.average_speed * 3.6).toFixed(1) }} <span class="text-xs font-normal not-italic text-slate-400 uppercase">km/h</span>
+                            </p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-dashed pt-8">
-                        <div class="space-y-4">
-                            <h3 class="font-black italic text-sm text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                <span class="w-2 h-2 bg-[#FC4C02] rounded-full"></span> Analisis Performa
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 border-t border-slate-100 pt-10">
+                        <div class="space-y-6">
+                            <h3 class="label-muted !text-slate-800 flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 bg-strava rounded-full"></span> Analisis Performa
                             </h3>
-                            <div class="space-y-2">
-                                <div class="flex justify-between text-sm"><span class="text-gray-500">Max Speed</span><span class="font-bold">{{ (activity.max_speed * 3.6).toFixed(1) }} km/h</span></div>
-                                <div class="flex justify-between text-sm"><span class="text-gray-500">Power Rata-rata</span><span class="font-bold">{{ activity.average_watts || 0 }} W</span></div>
-                                <div class="flex justify-between text-sm"><span class="text-gray-500">Total Energi</span><span class="font-bold">{{ activity.kilojoules || 0 }} kJ</span></div>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-end border-b border-slate-50 pb-2">
+                                    <span class="text-xs font-bold text-slate-400 uppercase">Max Speed</span>
+                                    <span class="font-black italic text-slate-700">{{ (activity.max_speed * 3.6).toFixed(1) }} km/h</span>
+                                </div>
+                                <div class="flex justify-between items-end border-b border-slate-50 pb-2">
+                                    <span class="text-xs font-bold text-slate-400 uppercase">Avg Watts</span>
+                                    <span class="font-black italic text-slate-700">{{ activity.average_watts || 0 }} W</span>
+                                </div>
+                                <div class="flex justify-between items-end border-b border-slate-50 pb-2">
+                                    <span class="text-xs font-bold text-slate-400 uppercase">Energy</span>
+                                    <span class="font-black italic text-slate-700">{{ activity.kilojoules || 0 }} kJ</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="space-y-4">
-                            <h3 class="font-black italic text-sm text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                <span class="w-2 h-2 bg-gray-300 rounded-full"></span> Metadata Device
+
+                        <div class="space-y-6">
+                            <h3 class="label-muted !text-slate-800 flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 bg-slate-300 rounded-full"></span> Hardware & Sync
                             </h3>
-                            <div class="space-y-2">
-                                <div class="flex justify-between text-sm"><span class="text-gray-500">Perangkat</span><span class="font-bold text-gray-700">{{ activity.device_name || 'Strava Mobile' }}</span></div>
-                                <div class="flex justify-between text-sm"><span class="text-gray-500">Upload ID</span><span class="font-mono text-[10px]">{{ activity.upload_id_str }}</span></div>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-end border-b border-slate-50 pb-2">
+                                    <span class="text-xs font-bold text-slate-400 uppercase">Device</span>
+                                    <span class="font-black italic text-slate-700">{{ activity.device_name || 'Mobile App' }}</span>
+                                </div>
+                                <div class="flex justify-between items-end border-b border-slate-50 pb-2">
+                                    <span class="text-xs font-bold text-slate-400 uppercase">Upload ID</span>
+                                    <span class="font-mono text-[10px] text-slate-400">{{ activity.upload_id_str || 'N/A' }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-10">
+                    <div class="mt-12">
                         <a :href="'https://www.strava.com/activities/' + activity.id" target="_blank" 
-                           class="group block w-full text-center bg-gray-900 text-white py-4 rounded-2xl font-black italic hover:bg-[#FC4C02] transition-all transform active:scale-95 shadow-xl shadow-gray-200">
-                            VIEW FULL ON STRAVA <span class="group-hover:translate-x-1 inline-block transition-transform">↗</span>
+                           class="btn-strava group">
+                            VIEW FULL ON STRAVA 
+                            <span class="inline-block group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform ml-2">↗</span>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
-        <div v-else class="flex flex-col items-center justify-center py-24 space-y-4">
-            <div class="w-8 h-8 border-4 border-[#FC4C02] border-t-transparent rounded-full animate-spin"></div>
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest italic">Sinkronisasi Data Aktivitas...</p>
+
+        <div v-else class="flex flex-col items-center justify-center py-32 space-y-6">
+            <div class="w-10 h-10 border-4 border-strava border-t-transparent rounded-full animate-spin"></div>
+            <p class="label-muted animate-pulse">Menghubungkan ke Strava...</p>
         </div>
     `,
     data() {
@@ -93,56 +124,54 @@ export default {
     },
     async mounted() {
         try {
-            const res = await fetch('data/activities.json');
+            const res = await fetch('data/activities.json?t=' + Date.now());
             const list = await res.json();
             this.activity = list.find(a => a.id.toString() === this.id);
 
             if (this.activity) {
-                // Beri jeda kecil agar DOM canvas/div map ter-render oleh Vue
-                setTimeout(() => {
-                    this.renderMap();
-                }, 300);
+                this.$nextTick(() => {
+                    setTimeout(() => this.initMap(), 400);
+                });
             }
         } catch (e) {
             console.error("Detail load error:", e);
         }
     },
     methods: {
-        renderMap() {
-            if (!this.activity.map || !this.activity.map.summary_polyline) return;
+        initMap() {
+            if (!this.activity.map?.summary_polyline) return;
+            if (typeof L === 'undefined' || typeof polyline === 'undefined') return;
 
-            // Pastikan global library L (Leaflet) & polyline decoder tersedia
-            if (typeof L === 'undefined' || typeof polyline === 'undefined') {
-                console.warn("Leaflet atau Polyline decoder belum termuat di index.html");
-                return;
+            try {
+                const coords = polyline.decode(this.activity.map.summary_polyline);
+
+                this.leafletMap = L.map('map', {
+                    dragging: !L.Browser.mobile,
+                    scrollWheelZoom: false,
+                    zoomControl: false,
+                    attributionControl: false
+                }).setView(coords[0], 13);
+
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(this.leafletMap);
+
+                const route = L.polyline(coords, {
+                    color: '#FC4C02',
+                    weight: 5,
+                    opacity: 1,
+                    lineJoin: 'round'
+                }).addTo(this.leafletMap);
+
+                this.leafletMap.fitBounds(route.getBounds(), { padding: [40, 40] });
+                
+                // Leaflet fix for container sizing
+                setTimeout(() => {
+                    this.leafletMap.invalidateSize();
+                    this.mapReady = true;
+                }, 100);
+
+            } catch (err) {
+                console.error("Map initialization failed:", err);
             }
-
-            // 1. Decode polyline Strava
-            const coords = polyline.decode(this.activity.map.summary_polyline);
-
-            // 2. Init Map
-            this.leafletMap = L.map('map', {
-                dragging: !L.Browser.mobile,
-                scrollWheelZoom: false,
-                zoomControl: false
-            }).setView(coords[0], 13);
-
-            // 3. Tile Layer (Sederhana & Ringan)
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; OpenStreetMap'
-            }).addTo(this.leafletMap);
-
-            // 4. Draw Path
-            const track = L.polyline(coords, {
-                color: '#FC4C02',
-                weight: 4,
-                opacity: 0.9,
-                lineJoin: 'round'
-            }).addTo(this.leafletMap);
-
-            // 5. Fit View
-            this.leafletMap.fitBounds(track.getBounds(), { padding: [30, 30] });
-            this.mapReady = true;
         },
         formatDate(d) {
             return new Date(d).toLocaleDateString('id-ID', { 
@@ -157,9 +186,6 @@ export default {
         }
     },
     beforeUnmount() {
-        // Cleanup map instance agar tidak memory leak
-        if (this.leafletMap) {
-            this.leafletMap.remove();
-        }
+        if (this.leafletMap) this.leafletMap.remove();
     }
 }
