@@ -3,49 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashstrav Pro</title>
+    <title>Dashstrav Pro | Strava Dashboard</title>
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; }
+        
+        .router-link-active { 
+            color: #FC4C02; 
+            border-bottom: 2px solid #FC4C02; 
+        }
+
+        /* Smooth Page Transitions */
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity 0.25s ease;
+        }
+        .fade-enter-from, .fade-leave-to {
+            opacity: 0;
+        }
+
+        /* Leaflet Fix: Ensure map stays under nav */
+        #map { z-index: 0 !important; }
+    </style>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/polyline/0.2.0/polyline.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/vue-router@4/dist/vue-router.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .router-link-active { color: #FC4C02; border-bottom: 2px solid #FC4C02; }
-    </style>
 </head>
-<body class="bg-gray-50">
+
+<body class="bg-gray-50 text-gray-900">
     <div id="app">
-        <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-[100]">
             <div class="max-w-5xl mx-auto px-4 flex justify-between items-center h-16">
-                <h1 class="font-black italic text-2xl text-[#FC4C02]">DASHSTRAV</h1>
-                <div class="flex gap-6 text-sm font-bold text-gray-500">
-                    <router-link to="/" class="pb-1">DASHBOARD</router-link>
-                    <router-link to="/activities" class="pb-1">AKTIVITAS</router-link>
+                <h1 class="font-black italic text-2xl text-[#FC4C02] tracking-tighter">DASHSTRAV</h1>
+                <div class="flex gap-6 text-[11px] md:text-sm font-black text-gray-400">
+                    <router-link to="/" class="pb-1 transition-colors hover:text-gray-600">DASHBOARD</router-link>
+                    <router-link to="/activities" class="pb-1 transition-colors hover:text-gray-600">AKTIVITAS</router-link>
                 </div>
             </div>
         </nav>
 
-        <<main class="max-w-5xl mx-auto px-4 py-8">
-    <router-view v-slot="{ Component }">
-        <transition name="fade" mode="out-in">
-            <keep-alive>
-                <component :is="Component" />
-            </keep-alive>
-        </transition>
-    </router-view>
-</main>
-
-<style>
-    /* Animasi transisi antar halaman agar lebih smooth */
-    .fade-enter-active, .fade-leave-active {
-        transition: opacity 0.2s ease;
-    }
-    .fade-enter-from, .fade-leave-to {
-        opacity: 0;
-    }
-</style>
+        <main class="max-w-5xl mx-auto px-4 py-8">
+            <router-view v-slot="{ Component }">
+                <transition name="fade" mode="out-in">
+                    <keep-alive include="Dashboard,Activities">
+                        <component :is="Component" />
+                    </keep-alive>
+                </transition>
+            </router-view>
+        </main>
     </div>
 
     <script src="./js/app.js" type="module"></script>
