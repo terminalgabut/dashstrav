@@ -19,6 +19,22 @@ export const ActivityService = {
         return list.find(a => a.id.toString() === id.toString());
     },
 
+    // Tambahkan ke dalam ActivityService di js/services/activityService.js
+async getLocationName(lat, lng) {
+    try {
+        // Menggunakan API Reverse Geocode gratis & tanpa key
+        const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=id`;
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        // Mengambil nama kota atau area lokal
+        return data.city || data.locality || data.principalSubdivision || 'Lokasi Tersembunyi';
+    } catch (e) {
+        console.error("Geocoding Error:", e);
+        return 'Jakarta'; // Fallback
+    }
+},
+
     // 2. Formatting Helpers
     formatDate(dateStr) {
         return new Date(dateStr).toLocaleDateString('id-ID', { 
