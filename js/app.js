@@ -1,39 +1,51 @@
-import Dashboard from './views/Dashboard.js';
+// Kita gunakan defineAsyncComponent dari Vue untuk lazy loading
+const { defineAsyncComponent } = Vue;
 
-// Simulasi view Activities (kamu bisa buat file terpisah nanti)
-const Activities = {
-    template: `
-        <div class="space-y-4">
-            <h2 class="font-bold text-xl uppercase italic">Riwayat Aktivitas</h2>
-            <div v-for="act in list" :key="act.id" class="bg-white p-4 rounded-xl border flex justify-between">
-                <div>
-                    <p class="font-bold">{{ act.name }}</p>
-                    <p class="text-xs text-gray-400">{{ act.type }} • {{ (act.distance/1000).toFixed(2) }} km</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-sm font-bold">{{ (act.moving_time/60).toFixed(0) }}m</p>
-                    <p class="text-[10px] text-gray-400 italic">{{ act.total_elevation_gain }}m elev</p>
-                </div>
-            </div>
-        </div>
-    `,
-    data() { return { list: [] } },
-    async mounted() {
-        const res = await fetch('data/activities.json');
-        this.list = await res.json();
-    }
-};
+// 1. Lazy Load Components
+// Browser hanya akan mengambil file .js ini saat route diakses
+const Dashboard = defineAsyncComponent(() => import('./views/Dashboard.js'));
+const Activities = defineAsyncComponent(() => import('./views/Activities.js'));
+const ActivityDetail = defineAsyncComponent(() => import('./views/ActivityDetail.js'));
 
+// 2. Definisi Routes
 const routes = [
-    { path: '/', component: Dashboard },
-    { path: '/activities', component: Activities }
+    { 
+        path: '/', 
+        component: Dashboard,
+        name: 'dashboard'
+    },
+    { 
+        path: '/activities', 
+        component: Activities,
+        name: 'activities'
+    },
+    { 
+        path: '/activity/:id', 
+        component: ActivityDetail, 
+        props: true,
+        name: 'detail'
+    }
 ];
 
+// 3. Inisialisasi Router
 const router = VueRouter.createRouter({
+    // Mode Hash cocok untuk GitHub Pages agar tidak 404 saat refresh
     history: VueRouter.createWebHashHistory(),
     routes,
+    // Scroll ke atas otomatis saat pindah halaman
+    scrollBehavior() {
+        return { top: 0 };
+    }
 });
 
-const app = Vue.createApp({});
+// 4. Inisialisasi App
+const app = Vue.createApp({
+    data() {
+        return {
+            loading: false
+        }
+    }
+});
+
 app.use(router);
 app.mount('#app');
