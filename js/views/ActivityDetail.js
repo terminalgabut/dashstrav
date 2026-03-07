@@ -1,3 +1,6 @@
+/**
+ * js/views/ActivityDetail.js
+ */
 export default {
     props: ['id'],
     name: 'ActivityDetail',
@@ -21,15 +24,21 @@ export default {
                             <span class="inline-block bg-orange-50 text-strava text-[9px] px-2.5 py-1 rounded-lg font-black uppercase italic tracking-widest mb-3">
                                 Strava {{ activity.type }}
                             </span>
-                            <h1 class="text-4xl font-black italic tracking-tighter text-slate-900 leading-tight">{{ activity.name }}</h1>
-                            <p class="label-muted !text-slate-400 mt-2">{{ formatDate(activity.start_date) }}</p>
+                            <h1 class="text-4xl font-black italic tracking-tighter text-slate-900 leading-tight">
+                                {{ activity.name }}
+                            </h1>
+                            <p class="label-muted !text-slate-400 mt-2">
+                                {{ formatDate(activity.start_date) }} • {{ activity.timezone?.split('/')[1] || 'Activity' }}
+                            </p>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
                         <div class="bg-slate-50/50 p-5 rounded-3xl border border-slate-100">
                             <p class="label-muted">Jarak</p>
-                            <p class="stats-value text-2xl mt-1">{{ (activity.distance / 1000).toFixed(2) }} <span class="text-xs font-normal text-slate-400 uppercase">km</span></p>
+                            <p class="stats-value text-2xl mt-1">
+                                {{ (activity.distance / 1000).toFixed(2) }} <span class="text-xs font-normal not-italic text-slate-400 uppercase">km</span>
+                            </p>
                         </div>
                         <div class="bg-slate-50/50 p-5 rounded-3xl border border-slate-100">
                             <p class="label-muted">Waktu</p>
@@ -37,29 +46,78 @@ export default {
                         </div>
                         <div class="bg-slate-50/50 p-5 rounded-3xl border border-slate-100">
                             <p class="label-muted">Elevasi</p>
-                            <p class="stats-value text-2xl mt-1 text-emerald-600">{{ activity.total_elevation_gain }} <span class="text-xs font-normal text-slate-400 uppercase">m</span></p>
+                            <p class="stats-value text-2xl mt-1 text-emerald-600">
+                                {{ activity.total_elevation_gain }} <span class="text-xs font-normal not-italic text-slate-400 uppercase">m</span>
+                            </p>
                         </div>
                         <div class="bg-slate-50/50 p-5 rounded-3xl border border-slate-100">
                             <p class="label-muted">Avg Speed</p>
-                            <p class="stats-value text-2xl mt-1">{{ (activity.average_speed * 3.6).toFixed(1) }} <span class="text-xs font-normal text-slate-400 uppercase">km/h</span></p>
+                            <p class="stats-value text-2xl mt-1">
+                                {{ (activity.average_speed * 3.6).toFixed(1) }} <span class="text-xs font-normal not-italic text-slate-400 uppercase">km/h</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 border-t border-slate-100 pt-10">
+                        <div class="space-y-6">
+                            <h3 class="label-muted !text-slate-800 flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 bg-strava rounded-full"></span> Analisis Performa
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-end border-b border-slate-50 pb-2">
+                                    <span class="text-xs font-bold text-slate-400 uppercase">Max Speed</span>
+                                    <span class="font-black italic text-slate-700">{{ (activity.max_speed * 3.6).toFixed(1) }} km/h</span>
+                                </div>
+                                <div class="flex justify-between items-end border-b border-slate-50 pb-2">
+                                    <span class="text-xs font-bold text-slate-400 uppercase">Avg Watts</span>
+                                    <span class="font-black italic text-slate-700">{{ activity.average_watts || 0 }} W</span>
+                                </div>
+                                <div class="flex justify-between items-end border-b border-slate-50 pb-2">
+                                    <span class="text-xs font-bold text-slate-400 uppercase">Energy</span>
+                                    <span class="font-black italic text-slate-700">{{ activity.kilojoules || 0 }} kJ</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <h3 class="label-muted !text-slate-800 flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 bg-slate-300 rounded-full"></span> Hardware & Sync
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-end border-b border-slate-50 pb-2">
+                                    <span class="text-xs font-bold text-slate-400 uppercase">Device</span>
+                                    <span class="font-black italic text-slate-700">{{ activity.device_name || 'Mobile App' }}</span>
+                                </div>
+                                <div class="flex justify-between items-end border-b border-slate-50 pb-2">
+                                    <span class="text-xs font-bold text-slate-400 uppercase">Upload ID</span>
+                                    <span class="font-mono text-[10px] text-slate-400">{{ activity.upload_id_str || 'N/A' }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="mt-12">
-                        <a :href="'https://www.strava.com/activities/' + activity.id" target="_blank" class="btn-strava group">
-                            VIEW FULL ON STRAVA <span class="inline-block group-hover:translate-x-1 transition-transform ml-2">↗</span>
+                        <a :href="'https://www.strava.com/activities/' + activity.id" target="_blank" 
+                           class="btn-strava group">
+                            VIEW FULL ON STRAVA 
+                            <span class="inline-block group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform ml-2">↗</span>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
+
         <div v-else class="flex flex-col items-center justify-center py-32 space-y-6">
             <div class="w-10 h-10 border-4 border-strava border-t-transparent rounded-full animate-spin"></div>
             <p class="label-muted animate-pulse">Menghubungkan ke Strava...</p>
         </div>
     `,
     data() {
-        return { activity: null, mapReady: false, leafletMap: null };
+        return { 
+            activity: null, 
+            mapReady: false,
+            leafletMap: null 
+        };
     },
     async mounted() {
         try {
@@ -69,7 +127,6 @@ export default {
 
             if (this.activity) {
                 this.$nextTick(() => {
-                    // Delay 400ms untuk memastikan transisi router selesai
                     setTimeout(() => this.initMap(), 400);
                 });
             }
@@ -85,7 +142,7 @@ export default {
 
             try {
                 const coords = polyline.decode(this.activity.map.summary_polyline);
-                if (this.leafletMap) this.leafletMap.remove();
+                if (this.leafletMap) { this.leafletMap.remove(); }
 
                 this.leafletMap = L.map('map', {
                     zoomControl: false,
@@ -96,8 +153,7 @@ export default {
 
                 const route = L.polyline(coords, {
                     color: '#FC4C02',
-                    weight: 5,
-                    lineJoin: 'round'
+                    weight: 5
                 }).addTo(this.leafletMap);
 
                 this.leafletMap.fitBounds(route.getBounds(), { padding: [40, 40] });
@@ -106,10 +162,12 @@ export default {
                     this.leafletMap.invalidateSize();
                     this.mapReady = true;
                 }, 300);
+
             } catch (err) {
                 console.error("Leaflet Error:", err);
             }
         },
+        // --- BERIKUT ADALAH FUNGSI YANG HARUS ADA AGAR TEMPLATE BERJALAN ---
         formatDate(d) {
             return new Date(d).toLocaleDateString('id-ID', { 
                 weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' 
@@ -119,10 +177,4 @@ export default {
             const h = Math.floor(seconds / 3600);
             const m = Math.floor((seconds % 3600) / 60);
             const s = seconds % 60;
-            return h > 0 ? `${h}j ${m}m` : `${m}m ${s}s`;
-        }
-    },
-    beforeUnmount() {
-        if (this.leafletMap) this.leafletMap.remove();
-    }
-}
+            return h > 0 ? `${h}j ${m}m` : `${
