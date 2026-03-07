@@ -1,0 +1,102 @@
+/* css/style.css
+
+/* --- CSS VARIABLES (Design System) --- */
+:root {
+    /* Brand Colors */
+    --strava-orange: #FC4C02;
+    --strava-orange-dark: #E34402;
+    
+    /* Neutral Colors */
+    --bg-main: #F8FAFC;
+    --card-bg: #FFFFFF;
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --text-muted: #94A3B8;
+    --border-color: #F1F5F9;
+    
+    /* Typography */
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    
+    /* Spacing & Radius */
+    --radius-xl: 1.5rem;   /* 24px */
+    --radius-lg: 1rem;     /* 16px */
+    --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- RESET & BASE --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* --- MODERN TYPOGRAPHY --- */
+h1, h2, h3, .font-heading {
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    font-style: italic;
+    text-transform: uppercase;
+}
+
+.stats-value {
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -0.05em;
+    color: var(--text-primary);
+}
+
+.label-muted {
+    font-size: 0.625rem; /* 10px */
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* --- REUSABLE COMPONENTS --- */
+.card-modern {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    transition: var(--transition-base);
+}
+
+.card-modern:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+.btn-strava {
+    background-color: var(--strava-orange);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-lg);
+    font-weight: 900;
+    font-style: italic;
+    text-align: center;
+    text-decoration: none;
+    transition: var(--transition-base);
+    display: block;
+}
+
+.btn-strava:hover {
+    background-color: var(--strava-orange-dark);
+    box-shadow: 0 4px 12px rgba(252, 76, 2, 0.3);
+}
+
+/* --- TRANSITIONS --- */
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.2s ease;
+}
+.fade-enter-from, .fade-leave-to {
+    opacity: 0;
+}
