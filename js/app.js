@@ -1,61 +1,41 @@
 /**
  * js/app.js
- * Refactored: Native Vue Router Lazy Loading
+ * Perbaikan stabilitas untuk Leaflet + Lazy Loading
  */
 
-// 1. Definisi Routes dengan Native Lazy Loading
-// Kita tidak perlu defineAsyncComponent untuk routes.
-// Vue Router akan menangani Promise dari import() secara otomatis.
 const routes = [
     { 
         path: '/', 
-        name: 'dashboard',
+        name: 'Dashboard',
         component: () => import('./views/Dashboard.js')
     },
     { 
         path: '/activities', 
-        name: 'activities',
+        name: 'Activities',
         component: () => import('./views/Activities.js')
     },
     { 
         path: '/activity/:id', 
-        name: 'detail',
+        name: 'ActivityDetail',
         component: () => import('./views/ActivityDetail.js'),
-        props: true // Mengirim :id langsung sebagai props ke komponen
+        props: true 
     }
 ];
 
-// 2. Inisialisasi Router
 const router = VueRouter.createRouter({
-    // Hash mode sangat disarankan untuk GitHub Pages
     history: VueRouter.createWebHashHistory(),
     routes,
-    // Estetika: Selalu kembali ke atas saat pindah halaman
     scrollBehavior(to, from, savedPosition) {
-        if (savedPosition) {
-            return savedPosition;
-        } else {
-            return { top: 0 };
-        }
+        // PENTING: Leaflet butuh waktu untuk kalkulasi ukuran.
+        // Jika pindah rute, kita beri sedikit delay sebelum scroll ke atas
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(savedPosition || { top: 0 });
+            }, 100);
+        });
     }
 });
 
-// 3. Global Loading State (Opsional)
-// Kita bisa memantau kapan rute sedang loading untuk menampilkan spinner
-router.beforeEach((to, from, next) => {
-    // Kamu bisa mengaktifkan loading state di sini jika perlu
-    next();
-});
-
-// 4. Inisialisasi Root App
-const app = Vue.createApp({
-    data() {
-        return {
-            // State global jika dibutuhkan
-            isAppReady: true
-        }
-    }
-});
-
+const app = Vue.createApp({});
 app.use(router);
 app.mount('#app');
