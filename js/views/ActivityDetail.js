@@ -11,6 +11,7 @@ export default {
             </button>
 
             <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
+                
                 <div id="map" class="h-80 w-full bg-slate-50 z-0 relative">
                     <div v-if="!mapReady" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-50/80 backdrop-blur-sm z-10">
                         <div class="w-6 h-6 border-2 border-strava border-t-transparent rounded-full animate-spin mb-3"></div>
@@ -19,6 +20,7 @@ export default {
                 </div>
 
                 <div class="p-8 -mt-12 relative bg-white rounded-t-[2.5rem] z-20 shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.05)]">
+                    
                     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
                         <div>
                             <span class="inline-block bg-orange-50 text-strava text-[9px] px-2.5 py-1 rounded-lg font-black uppercase italic tracking-widest mb-3">
@@ -142,7 +144,9 @@ export default {
 
             try {
                 const coords = polyline.decode(this.activity.map.summary_polyline);
-                if (this.leafletMap) { this.leafletMap.remove(); }
+                if (this.leafletMap) {
+                    this.leafletMap.remove();
+                }
 
                 this.leafletMap = L.map('map', {
                     zoomControl: false,
@@ -162,12 +166,10 @@ export default {
                     this.leafletMap.invalidateSize();
                     this.mapReady = true;
                 }, 300);
-
             } catch (err) {
                 console.error("Leaflet Error:", err);
             }
         },
-        // --- BERIKUT ADALAH FUNGSI YANG HARUS ADA AGAR TEMPLATE BERJALAN ---
         formatDate(d) {
             return new Date(d).toLocaleDateString('id-ID', { 
                 weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' 
@@ -177,4 +179,12 @@ export default {
             const h = Math.floor(seconds / 3600);
             const m = Math.floor((seconds % 3600) / 60);
             const s = seconds % 60;
-            return h > 0 ? `${h}j ${m}m` : `${
+            return h > 0 ? `${h}j ${m}m` : `${m}m ${s}s`;
+        }
+    },
+    beforeUnmount() {
+        if (this.leafletMap) {
+            this.leafletMap.remove();
+        }
+    }
+};
