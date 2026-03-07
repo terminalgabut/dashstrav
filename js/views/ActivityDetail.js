@@ -36,17 +36,18 @@ export default {
                                 </h1>
                                 
                                 <div v-if="activity.weather" class="flex items-center gap-2 animate-in slide-in-from-left-4 duration-700">
-                                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-2xl border border-slate-100 shadow-sm">
-                                        <span class="text-xl">{{ activity.weather.icon }}</span>
-                                        <span class="text-sm font-black text-slate-700">{{ activity.weather.temp }}°C</span>
-                                    </div>
-                                    <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-2xl shadow-sm">
-                                        <span class="text-xs">💨</span>
-                                        <span class="text-[10px] font-black text-white uppercase tracking-tighter">
-                                            {{ activity.weather.windDir }} {{ activity.weather.windSpeed }} m/s
-                                        </span>
-                                    </div>
-                                </div>
+    <div class="flex items-center gap-2.5 bg-white px-3 py-1.5 rounded-2xl border border-slate-100 shadow-sm">
+        <i :data-lucide="activity.weather.iconName" class="w-4 h-4 text-blue-500"></i>
+        <span class="text-sm font-black text-slate-700">{{ activity.weather.temp }}°C</span>
+    </div>
+    
+    <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-2xl shadow-lg border border-slate-800">
+        <i data-lucide="wind" class="w-3.5 h-3.5 text-slate-400"></i>
+        <span class="text-[10px] font-black text-white uppercase tracking-tighter">
+            {{ activity.weather.windDir }} {{ activity.weather.windSpeed }} m/s
+        </span>
+    </div>
+</div>
                             </div>
                             <p class="label-muted !text-slate-400 mt-2">
                                 {{ formatDate(activity.start_date) }} • {{ activity.timezone?.split('/')[1] || 'Jakarta' }}
@@ -143,31 +144,45 @@ export default {
             leafletMap: null 
         };
     },
+
     async mounted() {
-        this.activity = await ActivityService.getActivityById(this.id);
+    this.activity = await ActivityService.getActivityById(this.id);
 
-        if (this.activity) {
-            // Weather Engine Injection
-            if (this.activity.start_latlng) {
-                const weather = await WeatherService.fetchWeather(
-                    this.activity.start_latlng[0],
-                    this.activity.start_latlng[1],
-                    this.activity.start_date
-                );
-                if (weather) this.activity.weather = weather;
-            }
-
-            this.$nextTick(() => {
-                setTimeout(() => {
-                    if (typeof polyline !== 'undefined') {
-                        this.initMap();
-                    } else {
-                        setTimeout(() => this.initMap(), 500);
+    if (this.activity) {
+        // 1. Weather Engine Injection
+        if (this.activity.start_latlng) {
+            const weather = await WeatherService.fetchWeather(
+                this.activity.start_latlng[0],
+                this.activity.start_latlng[1],
+                this.activity.start_date
+            );
+            
+            if (weather) {
+                this.activity.weather = weather;
+                
+                // 2. Render Icon Lucide setelah cuaca masuk ke DOM
+                this.$nextTick(() => {
+                    if (window.lucide) {
+                        window.lucide.createIcons();
                     }
-                }, 500);
-            });
+                });
+            }
         }
-    },
+
+        // 3. Map Initialization
+        this.$nextTick(() => {
+            setTimeout(() => {
+                if (typeof polyline !== 'undefined') {
+                    this.initMap();
+                } else {
+                    console.warn("Polyline belum siap, mencoba lagi...");
+                    setTimeout(() => this.initMap(), 500);
+                }
+            }, 500);
+        });
+    }
+},
+    
     methods: {
         formatDate: ActivityService.formatDate,
         formatTime: ActivityService.formatTime,
