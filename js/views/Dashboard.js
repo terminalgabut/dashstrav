@@ -1,37 +1,44 @@
-//js/views/Dashboard.js
-
+/**
+ * js/views/Dashboard.js
+ * Refactored using Custom Design System & CSS Variables
+ */
 export default {
     name: 'Dashboard',
     template: `
         <div class="animate-in fade-in duration-500">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Jarak Total (10 Sesi)</p>
-                    <p class="text-3xl font-black mt-1 italic tracking-tighter text-gray-800">
-                        {{ stats.totalDist }} <span class="text-sm font-normal text-gray-400 not-italic">KM</span>
+                
+                <div class="card-modern">
+                    <p class="label-muted">Jarak Total (10 Sesi)</p>
+                    <p class="stats-value text-3xl mt-1">
+                        {{ stats.totalDist }} <span class="text-sm font-normal text-slate-400 not-italic uppercase">km</span>
                     </p>
                 </div>
                 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Elevasi</p>
-                    <p class="text-3xl font-black mt-1 text-green-600 italic tracking-tighter">
-                        ▲ {{ stats.totalElev }} <span class="text-sm font-normal text-gray-400 not-italic">M</span>
+                <div class="card-modern">
+                    <p class="label-muted">Total Elevasi</p>
+                    <p class="stats-value text-3xl mt-1 text-emerald-600">
+                        ▲ {{ stats.totalElev }} <span class="text-sm font-normal text-slate-400 not-italic uppercase">m</span>
                     </p>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Sesi</p>
-                    <p class="text-3xl font-black mt-1 italic tracking-tighter text-gray-800">
-                        {{ activities.length }} <span class="text-sm font-normal text-gray-400 not-italic">KALI</span>
+                <div class="card-modern">
+                    <p class="label-muted">Total Sesi</p>
+                    <p class="stats-value text-3xl mt-1">
+                        {{ activities.length }} <span class="text-sm font-normal text-slate-400 not-italic uppercase">Sesi</span>
                     </p>
                 </div>
+
             </div>
             
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <div class="card-modern">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xs font-black italic text-gray-400 uppercase tracking-widest">Grafik Volume Jarak</h2>
-                    <span class="text-[10px] bg-orange-50 text-[#FC4C02] px-2 py-1 rounded font-bold">10 AKTIVITAS TERAKHIR</span>
+                    <h2 class="label-muted !text-slate-500">Grafik Volume Jarak</h2>
+                    <span class="text-[9px] bg-orange-50 text-strava px-2 py-1 rounded-lg font-black italic tracking-widest">
+                        LAST 10 ACTIVITIES
+                    </span>
                 </div>
+                
                 <div class="h-[280px] w-full relative">
                     <canvas id="mainChart"></canvas>
                 </div>
@@ -53,15 +60,13 @@ export default {
             if (this.activities && this.activities.length > 0) {
                 this.calculate();
                 
-                // Beri waktu bagi Vue untuk merender elemen canvas sebelum Chart.js mengaksesnya
+                // Memastikan DOM siap sebelum render Chart
                 this.$nextTick(() => {
-                    setTimeout(() => {
-                        this.renderChart();
-                    }, 200);
+                    setTimeout(() => this.renderChart(), 300);
                 });
             }
         } catch (error) {
-            console.error("Gagal memuat data dashboard:", error);
+            console.error("Dashboard Error:", error);
         }
     },
     methods: {
@@ -81,6 +86,11 @@ export default {
             
             if (this.chartInstance) this.chartInstance.destroy();
 
+            // Setup gradient untuk bar agar lebih mewah
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, '#FC4C02');
+            gradient.addColorStop(1, '#ff8a5c');
+
             this.chartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -88,11 +98,11 @@ export default {
                     datasets: [{ 
                         label: 'Jarak (KM)', 
                         data: data.map(a => (a.distance/1000).toFixed(2)), 
-                        backgroundColor: '#FC4C02',
-                        hoverBackgroundColor: '#e54502',
-                        borderRadius: 6,
+                        backgroundColor: gradient,
+                        hoverBackgroundColor: '#FC4C02',
+                        borderRadius: 8,
                         barThickness: 'flex',
-                        maxBarThickness: 30
+                        maxBarThickness: 32
                     }]
                 },
                 options: { 
@@ -101,22 +111,29 @@ export default {
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            backgroundColor: '#1f2937',
-                            titleFont: { size: 10 },
-                            bodyFont: { size: 12, weight: 'bold' },
-                            padding: 10,
+                            backgroundColor: '#0F172A',
+                            padding: 12,
+                            cornerRadius: 12,
+                            titleFont: { family: 'Inter', size: 10, weight: 'bold' },
+                            bodyFont: { family: 'Inter', size: 13, weight: '900' },
                             displayColors: false
                         }
                     },
                     scales: { 
                         y: { 
                             beginAtZero: true,
-                            grid: { color: '#f3f4f6', drawBorder: false },
-                            ticks: { font: { size: 10, weight: 'bold' }, color: '#9ca3af' }
+                            grid: { color: '#F1F5F9', drawBorder: false },
+                            ticks: { 
+                                font: { family: 'Inter', size: 10, weight: '600' }, 
+                                color: '#94A3B8' 
+                            }
                         },
                         x: { 
                             grid: { display: false },
-                            ticks: { font: { size: 10, weight: 'bold' }, color: '#9ca3af' }
+                            ticks: { 
+                                font: { family: 'Inter', size: 10, weight: '600' }, 
+                                color: '#94A3B8' 
+                            }
                         }
                     }
                 }
@@ -124,8 +141,6 @@ export default {
         }
     },
     beforeUnmount() {
-        if (this.chartInstance) {
-            this.chartInstance.destroy();
-        }
+        if (this.chartInstance) this.chartInstance.destroy();
     }
 }
