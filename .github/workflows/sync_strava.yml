@@ -35,7 +35,7 @@ jobs:
 
       - name: Get Activities with Refresh Token
         run: |
-          # Ambil Access Token baru menggunakan Refresh Token dari Secrets
+          # 1. Ambil Access Token baru menggunakan Refresh Token dari Secrets
           curl -X POST https://www.strava.com/api/v3/oauth/token \
             -d client_id=${{ secrets.STRAVA_CLIENT_ID }} \
             -d client_secret=${{ secrets.STRAVA_CLIENT_SECRET }} \
@@ -44,9 +44,25 @@ jobs:
             
           ACCESS_TOKEN=$(jq -r .access_token token_output.json)
           
-          # Ambil 10 aktivitas terbaru
-          curl -X GET "https://www.strava.com/api/v3/athlete/activities?per_page=10" \
-            -H "Authorization: Bearer $ACCESS_TOKEN" > data/activities.json
+          # 2. Ambil 30 aktivitas terbaru (buffer agar tidak ada yang terlewat)
+          curl -X GET "https://www.strava.com/api/v3/athlete/activities?per_page=30" \
+            -H "Authorization: Bearer $ACCESS_TOKEN" > data/latest_fetch.json
+
+          # 3. Logika Penggabungan (Incremental Update)
+          # Jika file activities.json belum ada, inisialisasi sebagai array kosong
+          if [ ! -f data/activities.json ]; then
+            echo "[]" > data/activities.json
+          fi
+
+          # Gunakan jq untuk menggabungkan, membuang duplikat ID, dan mengurutkan ulang
+          jq -s 'add | unique_by(.id) | sort_by(.start_date) | reverse' \
+            data/activities.json data/latest_fetch.json > data/temp_combined.json
+          
+          # Simpan hasil gabungan kembali ke file utama
+          mv data/temp_combined.json data/activities.json
+          
+          # Bersihkan file sampah
+          rm data/latest_fetch.json
 
       - name: Commit and Push
         run: |
