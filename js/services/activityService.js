@@ -49,6 +49,15 @@ async getLocationName(lat, lng) {
         return h > 0 ? `${h}j ${m}m` : `${m}m ${s}s`;
     },
 
+    calculatePace(avgSpeedMs) {
+        if (!avgSpeedMs || avgSpeedMs === 0) return "0:00";
+        // m/s ke detik per km
+        const totalSecondsPerKm = 1000 / avgSpeedMs; 
+        const minutes = Math.floor(totalSecondsPerKm / 60);
+        const seconds = Math.round(totalSecondsPerKm % 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    },
+
     // 3. Calculation Logic (untuk Dashboard)
     getDashboardStats(activities) {
         const dist = activities.reduce((s, a) => s + a.distance, 0);
