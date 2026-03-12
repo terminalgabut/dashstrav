@@ -55,19 +55,22 @@ export default {
         }
     },
     async mounted() {
-        // Fetch data via Service
-        const activities = await ActivityService.fetchActivities();
+    // Fetch data via Service
+    const allActivities = await ActivityService.fetchActivities();
+    
+    if (allActivities && allActivities.length > 0) {
+        // --- KUNCI 10 SESI TERBARU DI SINI ---
+        const last10Activities = allActivities.slice(0, 10);
         
-        if (activities && activities.length > 0) {
-            // Kalkulasi via Service
-            this.stats = ActivityService.getDashboardStats(activities);
-            
-            // Render Chart
-            this.$nextTick(() => {
-                setTimeout(() => this.initDashboardChart(activities), 300);
-            });
-        }
-    },
+        // Kalkulasi via Service hanya untuk 10 data
+        this.stats = ActivityService.getDashboardStats(last10Activities);
+        
+        // Render Chart hanya untuk 10 data
+        this.$nextTick(() => {
+            setTimeout(() => this.initDashboardChart(last10Activities), 300);
+        });
+    }
+},
     methods: {
         initDashboardChart(activities) {
             const canvas = document.getElementById('mainChart');
