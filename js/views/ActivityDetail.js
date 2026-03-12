@@ -73,11 +73,22 @@ export default {
                             </p>
                         </div>
                         <div class="bg-slate-50/50 p-5 rounded-3xl border border-slate-100">
-                            <p class="label-muted text-[10px]">Avg Speed</p>
-                            <p class="stats-value text-2xl mt-1">
-                                {{ (activity.average_speed * 3.6).toFixed(1) }} <span class="text-xs font-normal not-italic text-slate-400 uppercase">km/h</span>
-                            </p>
-                        </div>
+    <p class="label-muted text-[10px]">
+        {{ activity.type === 'Run' ? 'Pace' : 'Avg Speed' }}
+    </p>
+    
+    <p class="stats-value text-2xl mt-1">
+        <template v-if="activity.type === 'Run'">
+            {{ calculatePace(activity.average_speed) }}
+            <span class="text-xs font-normal not-italic text-slate-400 uppercase">min/km</span>
+        </template>
+        
+        <template v-else>
+            {{ (activity.average_speed * 3.6).toFixed(1) }}
+            <span class="text-xs font-normal not-italic text-slate-400 uppercase">km/h</span>
+        </template>
+    </p>
+</div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-10 border-t border-slate-100 pt-10">
@@ -195,6 +206,7 @@ export default {
     methods: {
         formatDate: ActivityService.formatDate,
         formatTime: ActivityService.formatTime,
+        calculatePace: ActivityService.calculatePace,
 
         initMap() {
             if (!this.activity.map?.summary_polyline) return;
