@@ -52,7 +52,7 @@
                 </router-link>
                 
                 <div class="flex gap-6 text-[11px] md:text-xs font-black text-slate-400 tracking-widest">
-                    <router-link to="/statistic" class="hover:text-strava transition-colors uppercase">Statistik</router-link>
+                    <router-link to="/statistics" class="hover:text-strava transition-colors uppercase">Statistik</router-link>
                     <router-link to="/activities" class="hover:text-strava transition-colors uppercase">Aktivitas</router-link>
                 </div>
             </div>
@@ -61,7 +61,7 @@
         <main class="max-w-5xl mx-auto px-4 py-8 min-h-screen">
             <router-view v-slot="{ Component }">
                 <transition name="fade" mode="out-in">
-                    <keep-alive :include="['Dashboard', 'Activities']">
+                    <keep-alive :include="['Dashboard', 'Activities', 'Statistics']">
                         <component :is="Component" />
                     </keep-alive>
                 </transition>
