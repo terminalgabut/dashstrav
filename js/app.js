@@ -9,11 +9,19 @@ const routes = [
         name: 'Dashboard',
         component: () => import('./views/Dashboard.js')
     },
+
+    { 
+        path: '/statistics', 
+        name: 'Statistics',
+        component: () => import('./views/Statistics.js')
+    },
+    
     { 
         path: '/activities', 
         name: 'Activities',
         component: () => import('./views/Activities.js')
     },
+    
     { 
         path: '/activity/:id', 
         name: 'ActivityDetail',
