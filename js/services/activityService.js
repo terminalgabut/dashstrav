@@ -19,21 +19,17 @@ export const ActivityService = {
         return list.find(a => a.id.toString() === id.toString());
     },
 
-    // Tambahkan ke dalam ActivityService di js/services/activityService.js
-async getLocationName(lat, lng) {
-    try {
-        // Menggunakan API Reverse Geocode gratis & tanpa key
-        const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=id`;
-        const res = await fetch(url);
-        const data = await res.json();
-        
-        // Mengambil nama kota atau area lokal
-        return data.city || data.locality || data.principalSubdivision || 'Lokasi Tersembunyi';
-    } catch (e) {
-        console.error("Geocoding Error:", e);
-        return 'Jakarta'; // Fallback
-    }
-},
+    async getLocationName(lat, lng) {
+        try {
+            const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=id`;
+            const res = await fetch(url);
+            const data = await res.json();
+            return data.city || data.locality || data.principalSubdivision || 'Lokasi Tersembunyi';
+        } catch (e) {
+            console.error("Geocoding Error:", e);
+            return 'Jakarta'; 
+        }
+    },
 
     // 2. Formatting Helpers
     formatDate(dateStr) {
@@ -51,14 +47,13 @@ async getLocationName(lat, lng) {
 
     calculatePace(avgSpeedMs) {
         if (!avgSpeedMs || avgSpeedMs === 0) return "0:00";
-        // m/s ke detik per km
         const totalSecondsPerKm = 1000 / avgSpeedMs; 
         const minutes = Math.floor(totalSecondsPerKm / 60);
         const seconds = Math.round(totalSecondsPerKm % 60);
         return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     },
 
-    // 3. Calculation Logic (untuk Dashboard)
+    // 3. Calculation Logic
     getDashboardStats(activities) {
         const dist = activities.reduce((s, a) => s + a.distance, 0);
         const elev = activities.reduce((s, a) => s + a.total_elevation_gain, 0);
@@ -70,24 +65,33 @@ async getLocationName(lat, lng) {
         };
     },
 
+    // Memisahkan statistik berdasarkan jenis olahraga (Run/Ride)
+    calculateSportStats(activities, sportType) {
+        const filtered = activities.filter(a => a.type === sportType);
+        const dist = filtered.reduce((s, a) => s + a.distance, 0);
+        const elev = filtered.reduce((s, a) => s + a.total_elevation_gain, 0);
+        
+        return {
+            totalDist: (dist / 1000).toFixed(1),
+            totalElev: elev.toFixed(0),
+            count: filtered.length
+        };
+    },
+
     // 4. Map & Route Logic
     decodeRoute(polylineStr) {
-    // Memastikan kita mengambil instance dari global scope
-    const decoder = window.polyline; 
-    
-    if (!decoder) {
-        throw new Error("Library polyline.js tidak ditemukan di global window");
-    }
-    
-    return decoder.decode(polylineStr);
+        const decoder = window.polyline; 
+        if (!decoder) {
+            throw new Error("Library polyline.js tidak ditemukan di global window");
+        }
+        return decoder.decode(polylineStr);
     },
 
     // 5. Chart.js Configuration Generator
     getChartConfig(ctx, activities) {
         const data = [...activities].reverse();
-        
         const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, '#FC4C02'); // Strava Orange
+        gradient.addColorStop(0, '#FC4C02'); 
         gradient.addColorStop(1, '#ff8a5c');
 
         return {
@@ -128,6 +132,64 @@ async getLocationName(lat, lng) {
                         grid: { display: false },
                         ticks: { font: { family: 'Inter', size: 10, weight: '600' }, color: '#94A3B8' }
                     }
+                }
+            }
+        };
+    },
+
+    // Grafik Tahunan (Jan-Des) membandingkan Run & Ride
+    getYearlyComparisonChartConfig(ctx, activities) {
+        const runData = Array(12).fill(0);
+        const rideData = Array(12).fill(0);
+        
+        activities.forEach(activity => {
+            const date = new Date(activity.start_date);
+            const monthIndex = date.getMonth(); 
+            const distanceKm = activity.distance / 1000;
+            
+            if (activity.type === 'Run') {
+                runData[monthIndex] += distanceKm;
+            } else if (activity.type === 'Ride') {
+                rideData[monthIndex] += distanceKm;
+            }
+        });
+
+        return {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                datasets: [
+                    {
+                        label: 'Lari (KM)',
+                        data: runData.map(d => d.toFixed(1)),
+                        backgroundColor: '#FC4C02',
+                        borderRadius: 6,
+                        maxBarThickness: 16
+                    },
+                    {
+                        label: 'Sepeda (KM)',
+                        data: rideData.map(d => d.toFixed(1)),
+                        backgroundColor: '#1E293B',
+                        borderRadius: 6,
+                        maxBarThickness: 16
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0F172A',
+                        padding: 12,
+                        cornerRadius: 12,
+                        bodyFont: { family: 'Inter', weight: 'bold' }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#F1F5F9' } },
+                    x: { grid: { display: false } }
                 }
             }
         };
