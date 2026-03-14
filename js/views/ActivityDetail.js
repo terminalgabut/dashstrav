@@ -129,6 +129,9 @@ export default {
                                     <span class="text-[10px] font-bold text-slate-400 uppercase">Upload ID</span>
                                     <span class="font-mono text-[10px] text-slate-400">{{ activity.upload_id_str || 'N/A' }}</span>
                                 </div>
+                                <button @click="downloadGPX" class="mt-6 w-full bg-slate-900 text-white py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all flex justify-center items-center gap-2 shadow-lg shadow-slate-200">
+        <span>🎬</span> Buat Drone View (GPX)
+    </button>
                             </div>
                         </div>
                     </div>
@@ -207,6 +210,20 @@ export default {
         formatDate: ActivityService.formatDate,
         formatTime: ActivityService.formatTime,
         calculatePace: ActivityService.calculatePace,
+
+        downloadGPX() {
+            const gpxData = ActivityService.exportToGPX(this.activity);
+            if (!gpxData) return alert("Maaf, data rute tidak tersedia untuk aktivitas ini.");
+
+            const blob = new Blob([gpxData], { type: 'application/gpx+xml' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            
+            link.href = url;
+            link.download = `Dashstrav_${this.activity.type}_${this.activity.id}.gpx`;
+            link.click();
+            URL.revokeObjectURL(url);
+        },
 
         initMap() {
             if (!this.activity.map?.summary_polyline) return;
