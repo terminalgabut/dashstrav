@@ -87,6 +87,29 @@ export const ActivityService = {
         return decoder.decode(polylineStr);
     },
 
+    exportToGPX(activity) {
+        if (!activity.map || !activity.map.summary_polyline) return null;
+        
+        const coords = this.decodeRoute(activity.map.summary_polyline);
+        const name = activity.name || "Aktivitas Dashstrav";
+        const date = activity.start_date || new Date().toISOString();
+        
+        let gpx = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Dashstrav" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata><time>${date}</time></metadata>
+  <trk>
+    <name>${name}</name>
+    <trkseg>`;
+
+        coords.forEach(coord => {
+            // coord[0] adalah lat, coord[1] adalah lng
+            gpx += `\n      <trkpt lat="${coord[0]}" lon="${coord[1]}"></trkpt>`;
+        });
+
+        gpx += `\n    </trkseg>\n  </trk>\n</gpx>`;
+        return gpx;
+    },
+
     // 5. Chart.js Configuration Generator
     getChartConfig(ctx, activities) {
         const data = [...activities].reverse();
