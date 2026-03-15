@@ -140,7 +140,9 @@ export default {
             this.updateYearlyData();
         }
     },
-    methods: {
+    methods: { 
+        formatTime: ActivityService.formatTime,
+        calculatePace: ActivityService.calculatePace,
         updateYearlyData() {
             // Filter aktivitas berdasarkan tahun terpilih
             const yearActivities = this.allActivities.filter(a => new Date(a.start_date).getFullYear() === this.selectedYear);
