@@ -117,8 +117,8 @@ export default {
             availableYears: [],
             selectedYear: new Date().getFullYear(),
             yearlyStats: {
-                run: { totalDist: 0, totalElev: 0, count: 0 },
-                ride: { totalDist: 0, totalElev: 0, count: 0 }
+                run: { totalDist: 0, totalElev: 0, count: 0, totalTime: 0, avgSpeed: 0 },
+                ride: { totalDist: 0, totalElev: 0, count: 0, totalTime: 0, avgSpeed: 0 }
             },
             chartInstance: null
         }
