@@ -43,10 +43,20 @@ export default {
                             <p class="label-muted text-[11px]">Total Sesi</p>
                             <p class="stats-value text-3xl mt-1">{{ yearlyStats.run.count }} <span class="text-sm font-normal text-slate-400 uppercase">Sesi</span></p>
                         </div>
-                        <div class="col-span-2 border-t border-slate-100 pt-4">
-                            <p class="label-muted text-[11px]">Total Elevasi</p>
-                            <p class="stats-value text-xl mt-1 text-emerald-600">▲ {{ yearlyStats.run.totalElev }} <span class="text-xs font-normal text-slate-400 uppercase">m</span></p>
-                        </div>
+                        <div class="col-span-2 border-t border-slate-100 pt-4 grid grid-cols-3 gap-2">
+    <div>
+        <p class="label-muted text-[10px]">Total Elevasi</p>
+        <p class="stats-value text-base mt-1 text-emerald-600">▲ {{ yearlyStats.run.totalElev }}m</p>
+    </div>
+    <div>
+        <p class="label-muted text-[10px]">Avg Pace</p>
+        <p class="stats-value text-base mt-1 text-slate-700">{{ calculatePace(yearlyStats.run.avgSpeed) }}</p>
+    </div>
+    <div>
+        <p class="label-muted text-[10px]">Total Waktu</p>
+        <p class="stats-value text-base mt-1 text-slate-700">{{ formatTime(yearlyStats.run.totalTime) }}</p>
+    </div>
+</div>
                     </div>
                 </div>
 
@@ -66,10 +76,20 @@ export default {
                             <p class="label-muted text-slate-400 text-[11px]">Total Sesi</p>
                             <p class="stats-value text-3xl mt-1 text-white">{{ yearlyStats.ride.count }} <span class="text-sm font-normal text-slate-500 uppercase">Sesi</span></p>
                         </div>
-                        <div class="col-span-2 border-t border-slate-800 pt-4">
-                            <p class="label-muted text-slate-400 text-[11px]">Total Elevasi</p>
-                            <p class="stats-value text-xl mt-1 text-emerald-400">▲ {{ yearlyStats.ride.totalElev }} <span class="text-xs font-normal text-slate-500 uppercase">m</span></p>
-                        </div>
+                        <div class="col-span-2 border-t border-slate-800 pt-4 grid grid-cols-3 gap-2">
+    <div>
+        <p class="label-muted text-slate-400 text-[10px]">Total Elevasi</p>
+        <p class="stats-value text-base mt-1 text-emerald-400">▲ {{ yearlyStats.ride.totalElev }}m</p>
+    </div>
+    <div>
+        <p class="label-muted text-slate-400 text-[10px]">Avg Speed</p>
+        <p class="stats-value text-base mt-1 text-white">{{ (yearlyStats.ride.avgSpeed * 3.6).toFixed(1) }} <span class="text-[9px]">km/h</span></p>
+    </div>
+    <div>
+        <p class="label-muted text-slate-400 text-[10px]">Total Waktu</p>
+        <p class="stats-value text-base mt-1 text-white">{{ formatTime(yearlyStats.ride.totalTime) }}</p>
+    </div>
+</div>
                     </div>
                 </div>
 
