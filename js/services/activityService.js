@@ -70,10 +70,14 @@ export const ActivityService = {
         const filtered = activities.filter(a => a.type === sportType);
         const dist = filtered.reduce((s, a) => s + a.distance, 0);
         const elev = filtered.reduce((s, a) => s + a.total_elevation_gain, 0);
+        const time = filtered.reduce((s, a) => s + a.moving_time, 0); 
+        const avgSpeed = time > 0 ? dist / time : 0; 
         
         return {
             totalDist: (dist / 1000).toFixed(1),
-            totalElev: elev.toFixed(0),
+            totalElev: elev.toFixed(0), 
+            totalTime: time,
+            avgSpeed: avgSpeed,
             count: filtered.length
         };
     },
