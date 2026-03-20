@@ -25,7 +25,7 @@ export default {
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 
                 <div class="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-100 relative overflow-hidden group transition-all hover:border-orange-100">
                     <div class="absolute -right-6 -top-6 text-9xl text-orange-100/50 group-hover:text-orange-100 group-hover:scale-110 transition-all">🏃</div>
