@@ -1,6 +1,6 @@
 /**
  * js/views/ActivityDetail.js
- * Pulih & Terintegrasi dengan WeatherService
+ * Pulih & Terintegrasi dengan WeatherService + Custom Walk Steps
  */
 import { ActivityService } from '../services/activityService.js';
 import { WeatherService } from '../services/weatherService.js';
@@ -36,22 +36,22 @@ export default {
                                 </h1>
                                 
                                 <div v-if="activity.weather" class="flex items-center gap-2 animate-in slide-in-from-left-4 duration-700">
-    <div class="flex items-center gap-2.5 bg-white px-3 py-1.5 rounded-2xl border border-slate-100 shadow-sm">
-        <i :data-lucide="activity.weather.iconName" class="w-4 h-4 text-blue-500"></i>
-        <span class="text-sm font-black text-slate-700">{{ activity.weather.temp }}°C</span>
-    </div>
-    
-    <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-2xl shadow-lg border border-slate-800">
-        <i data-lucide="wind" class="w-3.5 h-3.5 text-slate-400"></i>
-        <span class="text-[10px] font-black text-white uppercase tracking-tighter">
-            {{ activity.weather.windDir }} {{ activity.weather.windSpeed }} m/s
-        </span>
-    </div>
-</div>
+                                    <div class="flex items-center gap-2.5 bg-white px-3 py-1.5 rounded-2xl border border-slate-100 shadow-sm">
+                                        <i :data-lucide="activity.weather.iconName" class="w-4 h-4 text-blue-500"></i>
+                                        <span class="text-sm font-black text-slate-700">{{ activity.weather.temp }}°C</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-2xl shadow-lg border border-slate-800">
+                                        <i data-lucide="wind" class="w-3.5 h-3.5 text-slate-400"></i>
+                                        <span class="text-[10px] font-black text-white uppercase tracking-tighter">
+                                            {{ activity.weather.windDir }} {{ activity.weather.windSpeed }} m/s
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                             <p class="label-muted !text-slate-400 mt-2">
-    {{ formatDate(activity.start_date) }} • {{ activity.display_location || 'Memuat Lokasi...' }}
-</p>
+                                {{ formatDate(activity.start_date) }} • {{ activity.display_location || 'Memuat Lokasi...' }}
+                            </p>
                         </div>
                     </div>
 
@@ -72,23 +72,28 @@ export default {
                                 {{ activity.total_elevation_gain }} <span class="text-xs font-normal not-italic text-slate-400 uppercase">m</span>
                             </p>
                         </div>
+
                         <div class="bg-slate-50/50 p-5 rounded-3xl border border-slate-100">
-    <p class="label-muted text-[10px]">
-        {{ activity.type === 'Run' ? 'Pace' : 'Avg Speed' }}
-    </p>
-    
-    <p class="stats-value text-2xl mt-1">
-        <template v-if="activity.type === 'Run'">
-            {{ calculatePace(activity.average_speed) }}
-            <span class="text-xs font-normal not-italic text-slate-400 uppercase">min/km</span>
-        </template>
-        
-        <template v-else>
-            {{ (activity.average_speed * 3.6).toFixed(1) }}
-            <span class="text-xs font-normal not-italic text-slate-400 uppercase">km/h</span>
-        </template>
-    </p>
-</div>
+                            <p class="label-muted text-[10px]">
+                                {{ activity.type === 'Run' ? 'Pace' : (activity.type === 'Walk' ? 'Est. Langkah' : 'Avg Speed') }}
+                            </p>
+                            
+                            <p class="stats-value text-2xl mt-1">
+                                <template v-if="activity.type === 'Run'">
+                                    {{ calculatePace(activity.average_speed) }}
+                                    <span class="text-xs font-normal not-italic text-slate-400 uppercase">min/km</span>
+                                </template>
+                                
+                                <template v-else-if="activity.type === 'Walk'">
+                                    👣 {{ Math.round(activity.distance / 0.7).toLocaleString('id-ID') }}
+                                </template>
+                                
+                                <template v-else>
+                                    {{ (activity.average_speed * 3.6).toFixed(1) }}
+                                    <span class="text-xs font-normal not-italic text-slate-400 uppercase">km/h</span>
+                                </template>
+                            </p>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-10 border-t border-slate-100 pt-10">
@@ -127,11 +132,11 @@ export default {
                                 </div>
                                 <div class="flex justify-between items-end border-b border-slate-50 pb-2">
                                     <span class="text-[10px] font-bold text-slate-400 uppercase">Upload ID</span>
-                                    <span class="font-mono text-[10px] text-slate-400">{{ activity.upload_id_str || 'N/A' }}</span>
+                                    <span class="font-black italic text-slate-400">{{ activity.upload_id_str || 'N/A' }}</span>
                                 </div>
                                 <button @click="downloadGPX" class="mt-6 w-full bg-slate-900 text-white py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all flex justify-center items-center gap-2 shadow-lg shadow-slate-200">
-        <span>🎬</span> Buat Drone View (GPX)
-    </button>
+                                    <span>🎬</span> Buat Drone View (GPX)
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -160,51 +165,45 @@ export default {
     },
 
     async mounted() {
-    this.activity = await ActivityService.getActivityById(this.id);
+        this.activity = await ActivityService.getActivityById(this.id);
 
-    if (this.activity) {
-        if (this.activity.start_latlng) {
-            // 1. Ambil Nama Lokasi & Data Cuaca secara paralel agar lebih cepat
-            const [location, weather] = await Promise.all([
-                ActivityService.getLocationName(
-                    this.activity.start_latlng[0],
-                    this.activity.start_latlng[1]
-                ),
-                WeatherService.fetchWeather(
-                    this.activity.start_latlng[0],
-                    this.activity.start_latlng[1],
-                    this.activity.start_date
-                )
-            ]);
+        if (this.activity) {
+            if (this.activity.start_latlng) {
+                const [location, weather] = await Promise.all([
+                    ActivityService.getLocationName(
+                        this.activity.start_latlng[0],
+                        this.activity.start_latlng[1]
+                    ),
+                    WeatherService.fetchWeather(
+                        this.activity.start_latlng[0],
+                        this.activity.start_latlng[1],
+                        this.activity.start_date
+                    )
+                ]);
 
-            // Simpan lokasi ke objek activity
-            this.activity.display_location = location;
+                this.activity.display_location = location;
 
-            // Simpan cuaca & render icon Lucide
-            if (weather) {
-                this.activity.weather = weather;
-                this.$nextTick(() => {
-                    if (window.lucide) {
-                        window.lucide.createIcons();
-                    }
-                });
-            }
-        }
-
-        // 2. Map Initialization
-        this.$nextTick(() => {
-            setTimeout(() => {
-                if (typeof polyline !== 'undefined') {
-                    this.initMap();
-                } else {
-                    console.warn("Polyline belum siap, mencoba lagi...");
-                    setTimeout(() => this.initMap(), 500);
+                if (weather) {
+                    this.activity.weather = weather;
+                    this.$nextTick(() => {
+                        if (window.lucide) {
+                            window.lucide.createIcons();
+                        }
+                    });
                 }
-            }, 500);
-        });
-    }
-},
-    
+            }
+
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    if (typeof polyline !== 'undefined') {
+                        this.initMap();
+                    } else {
+                        setTimeout(() => this.initMap(), 500);
+                    }
+                }, 500);
+            });
+        }
+    },
     
     methods: {
         formatDate: ActivityService.formatDate,
