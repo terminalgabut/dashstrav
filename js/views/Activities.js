@@ -14,8 +14,6 @@ export default {
                     <h2 class="text-3xl font-black italic uppercase tracking-tighter text-slate-800">Riwayat Sesi</h2>
                     <p class="label-muted mt-1 uppercase tracking-widest text-[10px]">Total {{ filteredList.length }} aktivitas ditemukan</p>
                 </div>
-                
-                // Ganti bagian ini:
 <div class="flex bg-slate-200/50 p-1 rounded-xl w-fit">
     <button v-for="type in ['all', 'Run', 'Ride', 'Walk']" 
         :key="type"
