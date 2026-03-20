@@ -118,7 +118,9 @@ export default {
             selectedYear: new Date().getFullYear(),
             yearlyStats: {
                 run: { totalDist: 0, totalElev: 0, count: 0, totalTime: 0, avgSpeed: 0 },
-                ride: { totalDist: 0, totalElev: 0, count: 0, totalTime: 0, avgSpeed: 0 }
+                ride: { totalDist: 0, totalElev: 0, count: 0, totalTime: 0, avgSpeed: 0 },
+                walk: { totalDist: 0, totalElev: 0, count: 0, totalTime: 0, avgSpeed: 0 } 
+        },
             },
             chartInstance: null
         }
@@ -150,6 +152,7 @@ export default {
             // Kalkulasi statistik Run vs Ride
             this.yearlyStats.run = ActivityService.calculateSportStats(yearActivities, 'Run');
             this.yearlyStats.ride = ActivityService.calculateSportStats(yearActivities, 'Ride');
+            this.yearlyStats.walk = ActivityService.calculateSportStats(yearActivities, 'Walk'); 
             
             // Render Grafik Perbandingan
             this.$nextTick(() => {
