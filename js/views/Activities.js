@@ -38,7 +38,7 @@ export default {
                 >
                     <div class="flex items-center gap-5">
                         <div class="w-14 h-14 flex items-center justify-center rounded-2xl bg-slate-50 group-hover:bg-orange-50 transition-colors duration-300">
-                            // Ganti bagian render emoji ini:
+                            
 <span class="text-2xl transform group-hover:scale-110 transition-transform">
     {{ act.type === 'Run' ? '🏃' : (act.type === 'Ride' ? '🚴' : '🚶') }}
 </span>
