@@ -92,6 +92,44 @@ export default {
 </div>
                     </div>
                 </div>
+                </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-100 relative overflow-hidden group transition-all hover:border-green-100">
+                    <div class="absolute -right-6 -top-6 text-9xl text-green-100/50 group-hover:text-green-100 group-hover:scale-110 transition-all">🚶</div>
+                    
+                    <div class="flex items-center gap-3 mb-6 relative z-10">
+                        <span class="bg-green-100 text-green-600 px-3 py-1.5 rounded-xl font-black uppercase text-xs italic tracking-widest">WALKING</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-5 relative z-10">
+                        <div>
+                            <p class="label-muted text-[11px]">Total Jarak</p>
+                            <p class="stats-value text-3xl mt-1 text-green-600">{{ yearlyStats.walk.totalDist }} <span class="text-sm font-normal text-slate-400 uppercase">km</span></p>
+                        </div>
+                        <div>
+                            <p class="label-muted text-[11px]">Total Sesi</p>
+                            <p class="stats-value text-3xl mt-1">{{ yearlyStats.walk.count }} <span class="text-sm font-normal text-slate-400 uppercase">Sesi</span></p>
+                        </div>
+                        <div class="col-span-2 border-t border-slate-100 pt-4 grid grid-cols-3 gap-2">
+                            <div>
+                                <p class="label-muted text-[10px]">Total Elevasi</p>
+                                <p class="stats-value text-base mt-1 text-emerald-600">▲ {{ yearlyStats.walk.totalElev }}m</p>
+                            </div>
+                            <div>
+                                <p class="label-muted text-[10px]">Avg Pace</p>
+                                <p class="stats-value text-base mt-1 text-slate-700">{{ calculatePace(yearlyStats.walk.avgSpeed) }}</p>
+                            </div>
+                            <div>
+                                <p class="label-muted text-[10px]">Total Waktu</p>
+                                <p class="stats-value text-base mt-1 text-slate-700">{{ formatTime(yearlyStats.walk.totalTime) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
 
             </div>
 
