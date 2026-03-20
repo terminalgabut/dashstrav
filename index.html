@@ -101,5 +101,19 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <script src="./js/app.js" type="module"></script>
+    <script>
+    // Memastikan ikon navigasi statis langsung muncul
+    const initLucide = () => {
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    };
+    
+    // Coba render saat DOM siap
+    document.addEventListener('DOMContentLoaded', initLucide);
+    
+    // Coba render lagi saat semua script (termasuk app.js) selesai load
+    window.addEventListener('load', initLucide);
+    </script>
 </body>
 </html>
