@@ -29,17 +29,31 @@
     </script>
 
     <style>
-        /* Base Nav Transitions */
-        .router-link-active {
-            color: #FC4C02 !important;
-            border-bottom: 2px solid #FC4C02;
-        }
-        .fade-enter-active, .fade-leave-active {
-            transition: opacity 0.2s ease;
-        }
-        .fade-enter-from, .fade-leave-to {
-            opacity: 0;
-        }
+    /* Nav Icon Styling */
+    .nav-icon {
+        @apply p-2.5 rounded-2xl text-slate-400 transition-all flex items-center justify-center;
+    }
+
+    .nav-icon:hover {
+        @apply bg-slate-50 text-slate-600;
+    }
+
+    /* Active State: Icon berubah warna & ada background tipis */
+    .router-link-active.nav-icon {
+        background-color: #FFF2ED !important; /* Warna orange sangat muda */
+        color: #FC4C02 !important;
+    }
+
+    .nav-icon i {
+        stroke-width: 2.5px;
+    }
+
+    /* Hilangkan garis bawah lama jika masih ada */
+    .router-link-active::after {
+        display: none !important;
+    }
+
+    [v-cloak] { display: none; }
     </style>
 </head>
 
