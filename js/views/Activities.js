@@ -15,15 +15,15 @@ export default {
                     <p class="label-muted mt-1 uppercase tracking-widest text-[10px]">Total {{ filteredList.length }} aktivitas ditemukan</p>
                 </div>
                 
-                <div class="flex bg-slate-200/50 p-1 rounded-xl w-fit">
-                    <button v-for="type in ['all', 'Run', 'Ride']" 
-                        :key="type"
-                        @click="filterType = type" 
-                        :class="getFilterClass(type)"
-                    >
-                        {{ type === 'all' ? 'SEMUA' : (type === 'Run' ? 'LARI' : 'SEPEDA') }}
-                    </button>
-                </div>
+                // Ganti bagian ini:
+<div class="flex bg-slate-200/50 p-1 rounded-xl w-fit">
+    <button v-for="type in ['all', 'Run', 'Ride', 'Walk']" 
+        :key="type"
+        @click="filterType = type" 
+        :class="getFilterClass(type)">
+        {{ type === 'all' ? 'SEMUA' : (type === 'Run' ? 'LARI' : (type === 'Ride' ? 'SEPEDA' : 'JALAN')) }}
+    </button>
+</div>
             </div>
 
             <div v-if="loading" class="flex flex-col items-center justify-center py-20">
@@ -40,9 +40,10 @@ export default {
                 >
                     <div class="flex items-center gap-5">
                         <div class="w-14 h-14 flex items-center justify-center rounded-2xl bg-slate-50 group-hover:bg-orange-50 transition-colors duration-300">
-                            <span class="text-2xl transform group-hover:scale-110 transition-transform">
-                                {{ act.type === 'Run' ? '🏃' : '🚴' }}
-                            </span>
+                            // Ganti bagian render emoji ini:
+<span class="text-2xl transform group-hover:scale-110 transition-transform">
+    {{ act.type === 'Run' ? '🏃' : (act.type === 'Ride' ? '🚴' : '🚶') }}
+</span>
                         </div>
                         
                         <div>
@@ -50,9 +51,14 @@ export default {
                                 {{ act.name }}
                             </h3>
                             <div class="flex items-center gap-2 mt-1">
-                                <span class="label-muted !text-[9px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 font-bold uppercase">
-                                    {{ act.type }}
-                                </span>
+                                
+<span :class="[
+    'label-muted !text-[9px] px-1.5 py-0.5 rounded font-bold uppercase',
+    act.type === 'Run' ? 'bg-orange-100 text-orange-600' : 
+    (act.type === 'Ride' ? 'bg-slate-100 text-slate-500' : 'bg-green-100 text-green-600')
+]">
+    {{ act.type }}
+</span>
                                 <span class="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">
                                     {{ formatDate(act.start_date) }}
                                 </span>
