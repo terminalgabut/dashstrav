@@ -176,6 +176,7 @@ export const ActivityService = {
     getYearlyComparisonChartConfig(ctx, activities) {
         const runData = Array(12).fill(0);
         const rideData = Array(12).fill(0);
+        const walkData = Array(12).fill(0);
         
         activities.forEach(activity => {
             const date = new Date(activity.start_date);
@@ -186,6 +187,8 @@ export const ActivityService = {
                 runData[monthIndex] += distanceKm;
             } else if (activity.type === 'Ride') {
                 rideData[monthIndex] += distanceKm;
+            } else if (activity.type === 'Walk') { 
+            walkData[monthIndex] += distanceKm;
             }
         });
 
@@ -207,6 +210,13 @@ export const ActivityService = {
                         backgroundColor: '#1E293B',
                         borderRadius: 6,
                         maxBarThickness: 16
+                    },
+                    {
+                    label: 'Jalan (KM)', 
+                    data: walkData.map(d => d.toFixed(1)),
+                    backgroundColor: '#22C55E',
+                    borderRadius: 6,
+                    maxBarThickness: 12
                     }
                 ]
             },
